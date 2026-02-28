@@ -1,0 +1,82 @@
+# Root .gitignore for Project CEDT# Logs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.turbo.eslintcache# Cache*/.next/*/lib/*/dist/# Build outputsyarn.lockpackage-lock.json# Dependenciesfirebase-debug.log.firebaserc# Firebase*.swo*.swp.idea/.vscode/# IDE.env.*.local.env.local.env# Environment files.DS_Storebuild/dist/node_modules/logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Node modules
+node_modules
+dist
+dist-ssr
+
+# IDE
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Firebase
+.runtimeconfig.json
+.firebaserc
+
+# Build outputs
+lib/
+out/
+build/
+
+# Firebase emulator
+firebase-debug.log
+firestore-debug.log
+pubsub-debug.log
+database-debug.log
