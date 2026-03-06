@@ -3,21 +3,23 @@ import './App.css';
 import { HomePage } from './pages/HomePage';
 import { QuestionPage } from './pages/QuestionPage';
 import { Question } from './types';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 
-// Sample question for demo
+// Sample question for demo (Thai version)
 const sampleQuestion: Question = {
   id: 'q1',
-  questionText: 'How does water pollution affect aquatic ecosystems and the communities that depend on them?',
+  questionText: 'มลพิษของน้ำส่งผลต่อระบบนิเวศทางน้ำและประชาคมที่พึ่งพิงน้ำอย่างไร?',
   difficulty: 'hard',
-  subject: 'Environmental Science',
-  referenceAnswer: 'Water pollution harms aquatic ecosystems by introducing toxic substances that poison organisms, reduce oxygen levels (eutrophication), and disrupt food chains. This affects both the ecosystem health and human communities that depend on fishing, drinking water, and recreation.',
-  scoringGuideline: 'Award points for: (1) identifying specific types of harm to organisms, (2) explaining mechanisms like oxygen depletion, (3) discussing ecosystem disruption, (4) connecting to human impact.',
+  subject: 'วิทยาศาสตร์สิ่งแวดล้อม',
+  referenceAnswer: 'มลพิษของน้ำทำให้ระบบนิเวศทางน้ำเสียหาย โดยสารพิษจะพิษสัตว์น้ำ ลดระดับออกซิเจน (eutrophication) และหยุดชุมโซ่อาหาร ซึ่งส่งผลต่อสุขภาพของระบบนิเวศและประชาชนที่พึ่งพิงการตกปลา น้ำดื่ม และสันทนาการ',
+  scoringGuideline: 'ให้คะแนนสำหรับ: (1) การระบุประเภทความเสียหายเฉพาะต่อสิ่งมีชีวิต (2) การอธิบายกลไกเช่นการสูญเสียออกซิเจน (3) การป้องกันระบบนิเวศ (4) การเชื่อมต่อกับผลกระทบต่อมนุษย์',
   createdAt: new Date(),
 };
 
 type PageType = 'home' | 'question' | 'dashboard';
 
-function App() {
+function AppContent() {
+  const { language, setLanguage } = useLanguage();
   const [currentPage, setCurrentPage] = useState<PageType>('home');
   const [studentId] = useState('student-' + Math.random().toString(36).substr(2, 9));
 
@@ -31,13 +33,19 @@ function App() {
               className={`nav-link ${currentPage === 'home' ? 'active' : ''}`}
               onClick={() => setCurrentPage('home')}
             >
-              Home
+              {language === 'th' ? 'หน้าแรก' : 'Home'}
             </button>
             <button
               className={`nav-link ${currentPage === 'question' ? 'active' : ''}`}
               onClick={() => setCurrentPage('question')}
             >
-              Practice
+              {language === 'th' ? 'ฝึกฝน' : 'Practice'}
+            </button>
+            <button
+              className="nav-link language-toggle"
+              onClick={() => setLanguage(language === 'th' ? 'en' : 'th')}
+            >
+              {language === 'th' ? '🇬🇧 EN' : '🇹🇭 ไทย'}
             </button>
           </nav>
         </div>
@@ -56,6 +64,14 @@ function App() {
         <p>© 2024 PISA Thinking Skills Analyzer | AI-Powered Learning</p>
       </footer>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 }
 

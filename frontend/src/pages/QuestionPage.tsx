@@ -4,18 +4,24 @@ import { AudioRecorder } from '../components/AudioRecorder';
 import { AnalysisDisplay } from '../components/AnalysisDisplay';
 import { cleanupAudioUrl } from '../services/storage';
 import { analyzeStudentAnswer, transcribeAudio } from '../services/api';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface QuestionPageProps {
   question: Question;
   studentId: string;
 }
 
+type InputMethod = 'voice' | 'text';
+
 export const QuestionPage: React.FC<QuestionPageProps> = ({
   question,
   studentId,
 }) => {
+  const { t } = useLanguage();
+  const [inputMethod, setInputMethod] = useState<InputMethod>('voice');
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [textAnswer, setTextAnswer] = useState<string>('');
   const [transcription, setTranscription] = useState<string>('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
@@ -29,35 +35,57 @@ export const QuestionPage: React.FC<QuestionPageProps> = ({
   };
 
   const handleSubmitAnswer = async () => {
-    if (!audioBlob || !audioUrl) {
-      setError('Please record an audio answer first.');
-      return;
+    // Get transcription based on input method
+    let finalTranscription = '';
+
+    if (inputMethod === 'voice') {
+      if (!audioBlob || !audioUrl) {
+        setError(t('pleaseRecordAnswer'));
+        return;
+      }
+
+      try {
+        setIsSubmitting(true);
+        setError(null);
+        finalTranscription = await transcribeAudio(audioBlob);
+        setTranscription(finalTranscription);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Transcription error');
+        setIsSubmitting(false);
+        return;
+      }
+    } else {
+      if (!textAnswer.trim()) {
+        setError(t('pleaseRecordAnswer'));
+        return;
+      }
+      finalTranscription = textAnswer;
     }
 
     try {
-      setIsSubmitting(true);
-      setError(null);
-
-      // Transcribe audio from blob (without storage)
-      const transcribedText = await transcribeAudio(audioBlob);
-      setTranscription(transcribedText);
-
-      // Analyze the answer
       setIsAnalyzing(true);
       const result = await analyzeStudentAnswer({
-        transcription: transcribedText,
+        transcription: finalTranscription,
         questionId: question.id,
         referenceAnswer: question.referenceAnswer,
         scoringGuideline: question.scoringGuideline,
         studentId,
-        audioBase64: '', // Optional: audio data can be sent here if needed
-      }, audioBlob);
+        audioBase64: '',
+      }, audioBlob || undefined);
 
       setAnalysisResult(result);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'An unexpected error occurred'
-      );
+      const errorMessage = err instanceof Error ? err.message : t('unknownError');
+      
+      // Provide better error messages for common issues
+      if (errorMessage.includes('503') || errorMessage.includes('high demand')) {
+        setError('🔄 API Busy: The AI service is experiencing high demand. The system will automatically retry (up to 3 times). Please wait...');
+      } else if (errorMessage.includes('429')) {
+        setError('⏳ Too many requests. Please wait a moment and try again.');
+      } else {
+        setError(errorMessage);
+      }
+
     } finally {
       setIsSubmitting(false);
       setIsAnalyzing(false);
@@ -78,7 +106,7 @@ export const QuestionPage: React.FC<QuestionPageProps> = ({
       <div className="question-container">
         {/* Question Display */}
         <div className="question-section">
-          <h1>Question</h1>
+          <h1>{t('question')}</h1>
           <div className="question-content">
             {question.questionImage && (
               <img
@@ -100,24 +128,61 @@ export const QuestionPage: React.FC<QuestionPageProps> = ({
         {/* Recording Section */}
         {!analysisResult && (
           <div className="recording-section">
-            <h2>Record Your Answer</h2>
-            <p className="instructions">
-              Please speak your answer clearly. Take your time to explain your thinking.
-            </p>
-            
-            <AudioRecorder
-              onRecordingComplete={handleRecordingComplete}
-              disabled={isSubmitting || isAnalyzing}
-            />
+            <h2>{t('recordAnswer')}</h2>
+            <p className="instructions">{t('instructions')}</p>
+
+            {/* Input Method Selection */}
+            <div className="input-method-selector">
+              <label>{t('selectInputMethod')}:</label>
+              <div className="method-buttons">
+                <button
+                  className={`method-btn ${inputMethod === 'voice' ? 'active' : ''}`}
+                  onClick={() => setInputMethod('voice')}
+                >
+                  🎤 {t('voiceRecording')}
+                </button>
+                <button
+                  className={`method-btn ${inputMethod === 'text' ? 'active' : ''}`}
+                  onClick={() => setInputMethod('text')}
+                >
+                  ⌨️ {t('typingAnswer')}
+                </button>
+              </div>
+            </div>
+
+            {/* Voice Recording */}
+            {inputMethod === 'voice' && (
+              <AudioRecorder
+                onRecordingComplete={handleRecordingComplete}
+                disabled={isSubmitting || isAnalyzing}
+              />
+            )}
+
+            {/* Text Input */}
+            {inputMethod === 'text' && (
+              <textarea
+                className="text-input"
+                value={textAnswer}
+                onChange={(e) => setTextAnswer(e.target.value)}
+                placeholder={t('typeYourAnswer')}
+                disabled={isSubmitting || isAnalyzing}
+                rows={6}
+              />
+            )}
 
             {error && <div className="error-alert">{error}</div>}
 
             <button
               onClick={handleSubmitAnswer}
-              disabled={!audioBlob || isSubmitting || isAnalyzing}
+              disabled={
+                (inputMethod === 'voice' && !audioBlob) ||
+                (inputMethod === 'text' && !textAnswer.trim()) ||
+                isSubmitting ||
+                isAnalyzing
+              }
               className="btn btn-success btn-large"
             >
-              {isSubmitting ? 'Processing...' : 'Submit Answer'}
+              {isSubmitting || isAnalyzing ? t('processing') : t('submitAnswer')}
             </button>
           </div>
         )}
@@ -129,18 +194,19 @@ export const QuestionPage: React.FC<QuestionPageProps> = ({
               result={analysisResult}
               isLoading={isAnalyzing}
             />
-            
+
             {analysisResult && (
               <button
                 onClick={() => {
                   setAudioBlob(null);
                   setAudioUrl(null);
+                  setTextAnswer('');
                   setTranscription('');
                   setAnalysisResult(null);
                 }}
                 className="btn btn-primary"
               >
-                Try Another Question
+                {t('tryAnotherQuestion')}
               </button>
             )}
           </div>

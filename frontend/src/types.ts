@@ -8,6 +8,8 @@ export interface Question {
   referenceAnswer: string;
   scoringGuideline: string;
   createdAt: Date;
+  questionImage?: string; // Optional image URL for the question
+  context?: string; // Optional context information
 }
 
 export interface RecordingState {

@@ -40,10 +40,14 @@ export async function analyzeStudentAnswer(
   try {
     const requestData: any = { ...data };
     
+    console.log('🚀 Sending analysis request to:', `${API_BASE}/analyzeAnswer`);
+    console.log('📝 Request data:', requestData);
+    
     // If audio blob provided, convert to base64 (free option without storage)
     if (audioBlob) {
       try {
         requestData.audioBase64 = await blobToBase64(audioBlob);
+        console.log('🎵 Audio converted to base64, size:', requestData.audioBase64.length);
       } catch (error) {
         console.warn('Could not convert audio to base64, continuing without it', error);
       }
@@ -59,9 +63,10 @@ export async function analyzeStudentAnswer(
       }
     );
     
+    console.log('✅ Analysis response received:', response.data);
     return response.data as AnalysisResult;
   } catch (error) {
-    console.error('Error analyzing answer:', error);
+    console.error('❌ Error analyzing answer:', error);
     throw new Error(
       `Failed to analyze answer: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
@@ -75,16 +80,19 @@ export async function analyzeStudentAnswer(
  */
 export async function transcribeAudio(audioBlob: Blob): Promise<string> {
   try {
+    console.log('🎤 Starting transcription...');
     // Convert blob to base64
     const audioBase64 = await blobToBase64(audioBlob);
+    console.log('📤 Sending transcription request, audio size:', audioBase64.length);
     
     const response = await axios.post(`${API_BASE}/transcribeAudio`, {
       audioData: audioBase64,
     });
     
+    console.log('✅ Transcription received:', response.data.transcription);
     return response.data.transcription;
   } catch (error) {
-    console.error('Error transcribing audio:', error);
+    console.error('❌ Error transcribing audio:', error);
     throw new Error(
       `Failed to transcribe audio: ${error instanceof Error ? error.message : 'Unknown error'}`
     );

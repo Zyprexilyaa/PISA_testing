@@ -1,0 +1,2 @@
+// Frontend TypeScript types
+export {};
