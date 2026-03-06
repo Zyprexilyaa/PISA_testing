@@ -2,8 +2,8 @@ services:
   - type: web
     name: pisa-backend
     runtime: node
-    buildCommand: "npm run build"
-    startCommand: "npm start"
+    buildCommand: "cd backend/functions && npm install && npm run build"
+    startCommand: "cd backend/functions && node lib/index.js"
     envVars:
       - key: GOOGLE_API_KEY
         sync: false
