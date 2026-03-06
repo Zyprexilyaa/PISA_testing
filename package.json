@@ -1,4 +1,11 @@
 {
+  "name": "pisa-project",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd backend/functions && npm install && npm run build",
+    "start": "cd backend/functions && npm start",
+    "dev": "cd backend/functions && npm run dev"
+  },
   "dependencies": {
     "firebase": "^12.10.0"
   }
