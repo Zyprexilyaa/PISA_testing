@@ -55,7 +55,11 @@ export const JoinClassroomPage: React.FC = () => {
 
     try {
       const classroom = await joinClassroom(user.uid, classKey.trim().toUpperCase());
-      setSuccess(`Successfully joined "${classroom.className}"!`);
+      if (classroom) {
+        setSuccess(`Successfully joined "${classroom.className}"!`);
+      } else {
+        setSuccess('Successfully joined classroom!');
+      }
 
       // Refresh classroom list
       const updatedClassrooms = await getStudentClassrooms(user.uid);

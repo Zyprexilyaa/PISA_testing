@@ -4,10 +4,11 @@ import { useAuth } from '../contexts/AuthContext';
 import { getClassroomSubmissions, ClassroomSubmission } from '../services/classroomService';
 import './Classroom.css';
 
-interface SubmissionWithDetails extends ClassroomSubmission {
-  studentName?: string;
-  studentEmail?: string;
-}
+type SubmissionWithDetails = ClassroomSubmission & {
+  studentName: string;
+  studentEmail: string;
+  classroomName?: string;
+};
 
 export const TeacherDashboardPage: React.FC = () => {
   const { classroomId } = useParams<{ classroomId: string }>();
@@ -38,7 +39,8 @@ export const TeacherDashboardPage: React.FC = () => {
         const submissionsWithDetails: SubmissionWithDetails[] = classroomSubmissions.map(sub => ({
           ...sub,
           studentName: `Student ${sub.studentId.slice(-4)}`, // Last 4 chars of ID
-          studentEmail: `${sub.studentId.slice(-4)}@student.edu` // Mock email
+          studentEmail: `${sub.studentId.slice(-4)}@student.edu`, // Mock email
+          classroomName: sub.classroomName,
         }));
 
         setSubmissions(submissionsWithDetails);

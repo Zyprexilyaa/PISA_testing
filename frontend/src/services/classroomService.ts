@@ -8,6 +8,9 @@ export interface Classroom {
   classKey: string; // Unique join code
   createdAt: Date;
   students: string[]; // Array of student user IDs
+  // Optional denormalized fields for UI
+  teacherName?: string;
+  joinedAt?: Date;
 }
 
 export interface ClassroomSubmission {
@@ -20,6 +23,8 @@ export interface ClassroomSubmission {
   analysisResult: string;
   score: number;
   submittedAt: Date;
+  // Optional denormalized classroom name
+  classroomName?: string;
 }
 
 /**

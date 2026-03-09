@@ -1,17 +1,42 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { createContext, useContext, useState, useEffect } from 'react';
 import { getAuth, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 import app from '../services/firebase';
 const AuthContext = createContext(undefined);
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [userRole, setUserRole] = useState(null);
     const [loading, setLoading] = useState(true);
     const auth = getAuth(app);
+    const db = getFirestore(app);
+    // Fetch user role from Firestore
+    const fetchUserRole = async (userId) => {
+        try {
+            const userDocRef = doc(db, 'users', userId);
+            const userDocSnap = await getDoc(userDocRef);
+            if (userDocSnap.exists()) {
+                const role = userDocSnap.data().role;
+                setUserRole(role);
+                return role;
+            }
+        }
+        catch (error) {
+            console.error('Error fetching user role:', error);
+        }
+        return null;
+    };
     // Listen for auth state changes
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             console.log('Auth state changed:', currentUser?.email || 'No user');
             setUser(currentUser);
+            if (currentUser) {
+                await fetchUserRole(currentUser.uid);
+            }
+            else {
+                setUserRole(null);
+            }
             setLoading(false);
         });
         return unsubscribe;
@@ -30,11 +55,19 @@ export const AuthProvider = ({ children }) => {
             setLoading(false);
         }
     };
-    const signUpWithEmail = async (email, password) => {
+    const signUpWithEmail = async (email, password, role) => {
         try {
             setLoading(true);
-            await createUserWithEmailAndPassword(auth, email, password);
-            console.log('Sign up successful');
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            // Save user role to Firestore
+            const userDocRef = doc(db, 'users', userCredential.user.uid);
+            await setDoc(userDocRef, {
+                email,
+                role,
+                createdAt: new Date(),
+            });
+            setUserRole(role);
+            console.log('Sign up successful with role:', role);
         }
         catch (error) {
             console.error('Sign up error:', error);
@@ -48,7 +81,23 @@ export const AuthProvider = ({ children }) => {
         try {
             setLoading(true);
             const provider = new GoogleAuthProvider();
-            await signInWithPopup(auth, provider);
+            const result = await signInWithPopup(auth, provider);
+            // Check if user already has a role, if not default to student
+            const userDocRef = doc(db, 'users', result.user.uid);
+            const userDocSnap = await getDoc(userDocRef);
+            if (!userDocSnap.exists()) {
+                // New Google user, default to student
+                await setDoc(userDocRef, {
+                    email: result.user.email,
+                    role: 'student',
+                    createdAt: new Date(),
+                });
+                setUserRole('student');
+            }
+            else {
+                const role = userDocSnap.data().role;
+                setUserRole(role);
+            }
             console.log('Google login successful');
         }
         catch (error) {
@@ -63,6 +112,7 @@ export const AuthProvider = ({ children }) => {
         try {
             setLoading(true);
             await signOut(auth);
+            setUserRole(null);
             console.log('Logout successful');
         }
         catch (error) {
@@ -73,7 +123,7 @@ export const AuthProvider = ({ children }) => {
             setLoading(false);
         }
     };
-    return (_jsx(AuthContext.Provider, { value: { user, loading, loginWithEmail, signUpWithEmail, loginWithGoogle, logout }, children: children }));
+    return (_jsx(AuthContext.Provider, { value: { user, userRole, loading, loginWithEmail, signUpWithEmail, loginWithGoogle, logout }, children: children }));
 };
 export const useAuth = () => {
     const context = useContext(AuthContext);
