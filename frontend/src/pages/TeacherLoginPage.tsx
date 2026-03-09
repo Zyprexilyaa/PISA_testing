@@ -4,10 +4,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import './Auth.css';
 
-export const LoginPage: React.FC = () => {
+export const TeacherLoginPage: React.FC = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const { loginWithEmail, loginWithGoogle, loading } = useAuth();
+  const { loginWithEmail, loading } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,24 +25,10 @@ export const LoginPage: React.FC = () => {
       }
 
       await loginWithEmail(email, password);
-      navigate('/');
+      // After successful login, send teachers directly to classroom dashboard
+      navigate('/create-classroom');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Login failed';
-      setError(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    setError(null);
-    setIsSubmitting(true);
-
-    try {
-      await loginWithGoogle();
-      navigate('/');
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Google login failed';
       setError(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -53,18 +39,20 @@ export const LoginPage: React.FC = () => {
     <div className="auth-page">
       <div className="auth-container">
         <div className="auth-card">
-          <h1 className="auth-title">🧠 PISA Thinking Skills</h1>
-          <h2 className="auth-subtitle">{t('practice')}</h2>
+          <h1 className="auth-title">🧑‍🏫 Teacher Sign In</h1>
+          <h2 className="auth-subtitle">
+            {t('practice')} – Teacher Dashboard
+          </h2>
 
           <form onSubmit={handleEmailLogin} className="auth-form">
             <div className="form-group">
-              <label htmlFor="email">Email</label>
+              <label htmlFor="email">Teacher Email</label>
               <input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
+                placeholder="teacher@school.edu"
                 disabled={isSubmitting || loading}
                 className="form-input"
               />
@@ -90,30 +78,14 @@ export const LoginPage: React.FC = () => {
               disabled={isSubmitting || loading || !email || !password}
               className="btn btn-primary btn-full"
             >
-              {isSubmitting ? '🔄 Logging in...' : '📧 Sign In with Email'}
+              {isSubmitting ? '🔄 Logging in...' : '📧 Teacher Sign In'}
             </button>
           </form>
 
-          <div className="divider">or</div>
-
-          <button
-            onClick={handleGoogleLogin}
-            disabled={isSubmitting || loading}
-            className="btn btn-google btn-full"
-          >
-            {isSubmitting ? '🔄 Signing in...' : '🔗 Sign In with Google'}
-          </button>
-
           <p className="auth-footer">
-            Don't have an account?{' '}
-            <Link to="/signup" className="auth-link">
-              Sign up here
-            </Link>
-          </p>
-          <p className="auth-footer" style={{ marginTop: '0.75rem', fontSize: '0.9rem' }}>
-            Are you a teacher?{' '}
-            <Link to="/teacher-login" className="auth-link">
-              Teacher sign in
+            Not a teacher?{' '}
+            <Link to="/login" className="auth-link">
+              Back to student sign in
             </Link>
           </p>
         </div>
@@ -121,3 +93,4 @@ export const LoginPage: React.FC = () => {
     </div>
   );
 };
+

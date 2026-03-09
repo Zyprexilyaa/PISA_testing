@@ -10,6 +10,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { CreateClassroomPage } from './pages/CreateClassroomPage';
 import { JoinClassroomPage } from './pages/JoinClassroomPage';
 import { TeacherDashboardPage } from './pages/TeacherDashboardPage';
+import { TeacherLoginPage } from './pages/TeacherLoginPage';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Routes>
             {/* Public Routes */}
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/teacher-login" element={<TeacherLoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
             
             {/* Protected Routes - Classroom Features */}
