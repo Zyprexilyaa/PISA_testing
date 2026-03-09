@@ -1,0 +1,117 @@
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
+import './Auth.css';
+
+export const LoginPage: React.FC = () => {
+  const { t } = useLanguage();
+  const navigate = useNavigate();
+  const { loginWithEmail, loginWithGoogle, loading } = useAuth();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      if (!email || !password) {
+        throw new Error('Please fill in all fields');
+      }
+
+      await loginWithEmail(email, password);
+      navigate('/');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Login failed';
+      setError(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      await loginWithGoogle();
+      navigate('/');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Google login failed';
+      setError(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="auth-page">
+      <div className="auth-container">
+        <div className="auth-card">
+          <h1 className="auth-title">🧠 PISA Thinking Skills</h1>
+          <h2 className="auth-subtitle">{t('practice')}</h2>
+
+          <form onSubmit={handleEmailLogin} className="auth-form">
+            <div className="form-group">
+              <label htmlFor="email">Email</label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your@email.com"
+                disabled={isSubmitting || loading}
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                disabled={isSubmitting || loading}
+                className="form-input"
+              />
+            </div>
+
+            {error && <div className="error-alert">{error}</div>}
+
+            <button
+              type="submit"
+              disabled={isSubmitting || loading || !email || !password}
+              className="btn btn-primary btn-full"
+            >
+              {isSubmitting ? '🔄 Logging in...' : '📧 Sign In with Email'}
+            </button>
+          </form>
+
+          <div className="divider">or</div>
+
+          <button
+            onClick={handleGoogleLogin}
+            disabled={isSubmitting || loading}
+            className="btn btn-google btn-full"
+          >
+            {isSubmitting ? '🔄 Signing in...' : '🔗 Sign In with Google'}
+          </button>
+
+          <p className="auth-footer">
+            Don't have an account?{' '}
+            <Link to="/signup" className="auth-link">
+              Sign up here
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};

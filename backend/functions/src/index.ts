@@ -103,7 +103,9 @@ export default app;
 export { app };
 
 // Start server if running directly
-const PORT = parseInt(process.env.PORT || '5000', 10);
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Backend server running on http://0.0.0.0:${PORT}`);
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
+console.log('Starting server on port:', PORT);
+app.listen(PORT, () => {
+  console.log(`✅ Backend server running on port ${PORT}`);
+  console.log(`📍 Access at: http://0.0.0.0:${PORT}`);
 });

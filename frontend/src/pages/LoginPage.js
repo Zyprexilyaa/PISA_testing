@@ -1,0 +1,50 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
+import './Auth.css';
+export const LoginPage = () => {
+    const { t } = useLanguage();
+    const navigate = useNavigate();
+    const { loginWithEmail, loginWithGoogle, loading } = useAuth();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const handleEmailLogin = async (e) => {
+        e.preventDefault();
+        setError(null);
+        setIsSubmitting(true);
+        try {
+            if (!email || !password) {
+                throw new Error('Please fill in all fields');
+            }
+            await loginWithEmail(email, password);
+            navigate('/');
+        }
+        catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Login failed';
+            setError(errorMessage);
+        }
+        finally {
+            setIsSubmitting(false);
+        }
+    };
+    const handleGoogleLogin = async () => {
+        setError(null);
+        setIsSubmitting(true);
+        try {
+            await loginWithGoogle();
+            navigate('/');
+        }
+        catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Google login failed';
+            setError(errorMessage);
+        }
+        finally {
+            setIsSubmitting(false);
+        }
+    };
+    return (_jsx("div", { className: "auth-page", children: _jsx("div", { className: "auth-container", children: _jsxs("div", { className: "auth-card", children: [_jsx("h1", { className: "auth-title", children: "\uD83E\uDDE0 PISA Thinking Skills" }), _jsx("h2", { className: "auth-subtitle", children: t('practice') }), _jsxs("form", { onSubmit: handleEmailLogin, className: "auth-form", children: [_jsxs("div", { className: "form-group", children: [_jsx("label", { htmlFor: "email", children: "Email" }), _jsx("input", { id: "email", type: "email", value: email, onChange: (e) => setEmail(e.target.value), placeholder: "your@email.com", disabled: isSubmitting || loading, className: "form-input" })] }), _jsxs("div", { className: "form-group", children: [_jsx("label", { htmlFor: "password", children: "Password" }), _jsx("input", { id: "password", type: "password", value: password, onChange: (e) => setPassword(e.target.value), placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022", disabled: isSubmitting || loading, className: "form-input" })] }), error && _jsx("div", { className: "error-alert", children: error }), _jsx("button", { type: "submit", disabled: isSubmitting || loading || !email || !password, className: "btn btn-primary btn-full", children: isSubmitting ? '🔄 Logging in...' : '📧 Sign In with Email' })] }), _jsx("div", { className: "divider", children: "or" }), _jsx("button", { onClick: handleGoogleLogin, disabled: isSubmitting || loading, className: "btn btn-google btn-full", children: isSubmitting ? '🔄 Signing in...' : '🔗 Sign In with Google' }), _jsxs("p", { className: "auth-footer", children: ["Don't have an account?", ' ', _jsx(Link, { to: "/signup", className: "auth-link", children: "Sign up here" })] })] }) }) }));
+};
