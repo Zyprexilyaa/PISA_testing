@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HomePage } from './HomePage';
 import { QuestionPage } from './QuestionPage';
 import { Question } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
+import { getRandomProposition, initializeSamplePropositions } from '../services/propositionService';
+import { PropositionData } from '../services/propositionService';
 
 // Sample question for demo (Thai version)
 const sampleQuestion: Question = {
@@ -25,6 +27,51 @@ export const MainApp: React.FC = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState<PageType>('home');
   const [studentId] = useState('student-' + Math.random().toString(36).substr(2, 9));
+  const [proposition, setProposition] = useState<PropositionData | null>(null);
+  const [isLoadingProposition, setIsLoadingProposition] = useState(false);
+  const [initialized, setInitialized] = useState(false);
+
+  // NEW: Initialize propositions on first mount
+  useEffect(() => {
+    const initializeAndLoadProposition = async () => {
+      if (initialized) return;
+      
+      try {
+        console.log('📚 Initializing propositions...');
+        await initializeSamplePropositions();
+        setInitialized(true);
+        
+        // Load random proposition
+        const prop = await getRandomProposition(language);
+        setProposition(prop);
+        console.log('✅ Proposition loaded:', prop);
+      } catch (error) {
+        console.error('Error initializing propositions:', error);
+        setInitialized(true); // Mark as initialized even if there was an error
+      }
+    };
+
+    initializeAndLoadProposition();
+  }, []); // Run only once on mount
+
+  // NEW: Load proposition when page changes to question or language changes
+  useEffect(() => {
+    const loadProposition = async () => {
+      if (currentPage === 'question') {
+        setIsLoadingProposition(true);
+        try {
+          const prop = await getRandomProposition(language);
+          setProposition(prop);
+        } catch (error) {
+          console.error('Error loading proposition:', error);
+        } finally {
+          setIsLoadingProposition(false);
+        }
+      }
+    };
+
+    loadProposition();
+  }, [currentPage, language]);
 
   const handleLogout = async () => {
     try {
@@ -72,7 +119,11 @@ export const MainApp: React.FC = () => {
       <main className="app-main">
         {currentPage === 'home' && <HomePage />}
         {currentPage === 'question' && (
-          <QuestionPage question={sampleQuestion} studentId={studentId} />
+          <QuestionPage 
+            question={sampleQuestion} 
+            studentId={studentId}
+            proposition={proposition || undefined} // NEW: pass proposition
+          />
         )}
       </main>
 

@@ -7,6 +7,7 @@ import { AnalyzeAnswerRequest, AnalyzeAnswerResponse } from './types';
 import { analyzeStudentAnswer, generateMockAnalysis } from './analyzeAnswer';
 import { transcribeAudioFile } from './transcribeAudio';
 import { TranscriptionResponse } from './types';
+import { saveProposition, getPropositions, getUserAnswerHistory } from './database';
 
 const app = express();
 
@@ -18,7 +19,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use((req: Request, res: Response, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
-  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
   
   if (req.method === 'OPTIONS') {
     res.sendStatus(200);
@@ -82,6 +83,99 @@ app.post('/transcribeAudio', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error in transcribeAudio endpoint:', error);
+    res.status(500).json({
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+/**
+ * Endpoint: POST /saveProposition
+ * Saves a new proposition (question) with criteria to the database
+ */
+app.post('/saveProposition', async (req: Request, res: Response) => {
+  try {
+    const propositionData = req.body;
+
+    // Validate required fields
+    if (
+      !propositionData.questionText ||
+      !propositionData.difficulty ||
+      !propositionData.category ||
+      !propositionData.expectedAnswer ||
+      !propositionData.scoringRubric
+    ) {
+      return res.status(400).json({
+        error: 'Missing required fields: questionText, difficulty, category, expectedAnswer, scoringRubric',
+      });
+    }
+
+    // Save the proposition
+    const docId = await saveProposition(propositionData);
+
+    res.status(201).json({
+      id: docId,
+      message: 'Proposition saved successfully',
+      ...propositionData,
+    });
+  } catch (error) {
+    console.error('Error in saveProposition endpoint:', error);
+    res.status(500).json({
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+/**
+ * Endpoint: GET /propositions
+ * Retrieves all propositions for a given language
+ */
+app.get('/propositions', async (req: Request, res: Response) => {
+  try {
+    const language = (req.query.language as string) || 'th';
+
+    // Get propositions
+    const propositions = await getPropositions(language);
+
+    res.status(200).json({
+      language,
+      count: propositions.length,
+      propositions,
+    });
+  } catch (error) {
+    console.error('Error in getPropositions endpoint:', error);
+    res.status(500).json({
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+/**
+ * Endpoint: GET /userAnswerHistory
+ * Retrieves a user's answer history
+ */
+app.get('/userAnswerHistory', async (req: Request, res: Response) => {
+  try {
+    const userId = req.query.userId as string;
+    const limit = parseInt((req.query.limit as string) || '10', 10);
+
+    if (!userId) {
+      return res.status(400).json({
+        error: 'Missing userId query parameter',
+      });
+    }
+
+    // Get user's answer history
+    const answers = await getUserAnswerHistory(userId, limit);
+
+    res.status(200).json({
+      userId,
+      count: answers.length,
+      limit,
+      answers,
+    });
+  } catch (error) {
+    console.error('Error in getUserAnswerHistory endpoint:', error);
     res.status(500).json({
       error: error instanceof Error ? error.message : 'Unknown error',
     });

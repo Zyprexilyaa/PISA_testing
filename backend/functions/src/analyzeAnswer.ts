@@ -4,7 +4,7 @@ import {
   AnalyzeAnswerResponse,
   GeminiAnalysisResult,
 } from './types';
-import { saveAnalysisResult, saveStudentAnswer } from './database';
+import { saveAnalysisResult, saveStudentAnswer, saveAnswerWithCriteria } from './database';
 import { transcribeAudioFile } from './transcribeAudio';
 
 // Initialize Gemini AI
@@ -222,6 +222,20 @@ Respond in valid JSON format (no markdown, just pure JSON):
       }).catch((error) => {
         console.warn('⚠️ Warning: Failed to save to Firestore:', error);
       });
+
+      // If proposition data provided, save with criteria
+      if (req.proposition) {
+        console.log('💾 Saving answer with proposition criteria (background)...');
+        saveAnswerWithCriteria(
+          req.studentId,
+          req.proposition,
+          req.transcription,
+          JSON.stringify(analysisResult),
+          analysisResult.score
+        ).catch((error) => {
+          console.warn('⚠️ Warning: Failed to save answer with criteria:', error);
+        });
+      }
 
       return responseData;
     } catch (geminiError) {

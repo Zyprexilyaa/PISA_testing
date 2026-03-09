@@ -5,10 +5,12 @@ import { AnalysisDisplay } from '../components/AnalysisDisplay';
 import { cleanupAudioUrl } from '../services/storage';
 import { analyzeStudentAnswer, transcribeAudio } from '../services/api';
 import { useLanguage } from '../contexts/LanguageContext';
+import { PropositionData } from '../services/propositionService';
 
 interface QuestionPageProps {
   question: Question;
   studentId: string;
+  proposition?: PropositionData; // NEW: Optional proposition with criteria
 }
 
 type InputMethod = 'voice' | 'text';
@@ -16,8 +18,9 @@ type InputMethod = 'voice' | 'text';
 export const QuestionPage: React.FC<QuestionPageProps> = ({
   question,
   studentId,
+  proposition, // NEW: destructure proposition
 }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [inputMethod, setInputMethod] = useState<InputMethod>('voice');
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -71,6 +74,8 @@ export const QuestionPage: React.FC<QuestionPageProps> = ({
         scoringGuideline: question.scoringGuideline,
         studentId,
         audioBase64: '',
+        proposition, // NEW: pass proposition with criteria
+        language: language as 'th' | 'en', // NEW: pass language
       }, audioBlob || undefined);
 
       setAnalysisResult(result);

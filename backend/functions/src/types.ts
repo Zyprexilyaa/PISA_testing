@@ -1,5 +1,23 @@
 // Shared TypeScript types for backend
 
+export interface ScoringRubric {
+  excellent?: { points: number; description: string };
+  good?: { points: number; description: string };
+  fair?: { points: number; description: string };
+  poor?: { points: number; description: string };
+}
+
+export interface PropositionData {
+  id?: string;
+  questionId?: string;
+  questionText: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  category: 'critical-thinking' | 'problem-solving' | 'analysis' | 'comprehension';
+  expectedAnswer: string;
+  scoringRubric: ScoringRubric;
+  language?: 'th' | 'en';
+}
+
 export interface AnalyzeAnswerRequest {
   transcription: string;
   questionId: string;
@@ -7,6 +25,8 @@ export interface AnalyzeAnswerRequest {
   scoringGuideline: string;
   studentId: string;
   audioBase64?: string; // Optional base64 encoded audio (free solution without storage)
+  proposition?: PropositionData; // NEW: Optional proposition with all criteria
+  language?: 'th' | 'en'; // NEW: User's language
 }
 
 export interface AnalyzeAnswerResponse {

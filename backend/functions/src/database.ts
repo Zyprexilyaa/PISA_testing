@@ -88,7 +88,7 @@ export async function getQuestion(questionId: string): Promise<any> {
 }
 
 /**
- * Save student answer metadata
+ * Save student answer with complete metadata
  */
 export async function saveStudentAnswer(
   studentId: string,
@@ -108,6 +108,113 @@ export async function saveStudentAnswer(
     return docRef.id;
   } catch (error) {
     console.error('Error saving student answer:', error);
+    throw error;
+  }
+}
+
+/**
+ * Save complete answer record with proposition criteria
+ * This stores: answer + analysis + proposition criteria + scoring
+ */
+export async function saveAnswerWithCriteria(
+  userId: string,
+  propositionData: any,
+  userAnswer: string,
+  analysisResult: string,
+  score?: number
+): Promise<string> {
+  try {
+    const docRef = await db.collection('answers').doc(userId).collection('submissions').add({
+      // User & Question Info
+      userId,
+      questionId: propositionData.id || propositionData.questionId,
+      questionText: propositionData.questionText,
+      userAnswer,
+      language: propositionData.language || 'th',
+      
+      // Analysis
+      analysisResult,
+      score: score || 0,
+      
+      // Proposition Criteria
+      difficulty: propositionData.difficulty,
+      category: propositionData.category,
+      expectedAnswer: propositionData.expectedAnswer,
+      scoringRubric: propositionData.scoringRubric || {},
+      
+      // Timestamps
+      submittedAt: admin.firestore.FieldValue.serverTimestamp(),
+      analyzedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    
+    console.log(`✅ Answer saved with criteria: ${docRef.id}`);
+    return docRef.id;
+  } catch (error) {
+    console.error('Error saving answer with criteria:', error);
+    throw error;
+  }
+}
+
+/**
+ * Save proposition (question) with criteria to Firestore
+ */
+export async function saveProposition(propositionData: any): Promise<string> {
+  try {
+    const docRef = await db.collection('propositions').add({
+      questionText: propositionData.questionText,
+      difficulty: propositionData.difficulty,
+      category: propositionData.category,
+      expectedAnswer: propositionData.expectedAnswer,
+      scoringRubric: propositionData.scoringRubric,
+      language: propositionData.language || 'th',
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    
+    console.log(`✅ Proposition saved: ${docRef.id}`);
+    return docRef.id;
+  } catch (error) {
+    console.error('Error saving proposition:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get all propositions for a language
+ */
+export async function getPropositions(language: string = 'th'): Promise<any[]> {
+  try {
+    const snapshot = await db.collection('propositions')
+      .where('language', '==', language)
+      .get();
+    
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error('Error getting propositions:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get user's answer history
+ */
+export async function getUserAnswerHistory(userId: string, limit: number = 10): Promise<any[]> {
+  try {
+    const snapshot = await db.collection('answers')
+      .doc(userId)
+      .collection('submissions')
+      .orderBy('submittedAt', 'desc')
+      .limit(limit)
+      .get();
+    
+    return snapshot.docs.map((doc: any) => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error('Error getting user answer history:', error);
     throw error;
   }
 }
