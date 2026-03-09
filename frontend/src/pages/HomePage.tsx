@@ -1,6 +1,22 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 export const HomePage: React.FC = () => {
+  const navigate = useNavigate();
+  const { userRole } = useAuth();
+
+  const handlePrimaryAction = () => {
+    if (userRole === 'teacher') {
+      navigate('/create-classroom');
+    } else if (userRole === 'student') {
+      navigate('/join-classroom');
+    } else {
+      // Fallback: keep generic experience
+      navigate('/');
+    }
+  };
+
   return (
     <div className="home-page">
       <div className="hero-section">
@@ -36,12 +52,51 @@ export const HomePage: React.FC = () => {
         </div>
       </div>
 
-      <div className="cta-section">
-        <h2>Ready to get started?</h2>
-        <button className="btn btn-primary btn-large">
-          Start Answering Questions
-        </button>
-      </div>
+      {/* Role-specific classroom actions */}
+      {userRole && (
+        <div className="cta-section">
+          {userRole === 'teacher' ? (
+            <>
+              <h2>Manage your classrooms</h2>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <button
+                  className="btn btn-primary btn-large"
+                  onClick={() => navigate('/create-classroom')}
+                >
+                  Create Classroom
+                </button>
+                <button
+                  className="btn btn-secondary btn-large"
+                  onClick={() => navigate('/my-classrooms')}
+                >
+                  My Classrooms
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <h2>Join and practice in your classrooms</h2>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <button
+                  className="btn btn-primary btn-large"
+                  onClick={() => navigate('/join-classroom')}
+                >
+                  Join Classroom
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {!userRole && (
+        <div className="cta-section">
+          <h2>Ready to get started?</h2>
+          <button className="btn btn-primary btn-large" onClick={handlePrimaryAction}>
+            Start Answering Questions
+          </button>
+        </div>
+      )}
 
       <div className="thinking-levels-section">
         <h3>PISA Thinking Levels</h3>

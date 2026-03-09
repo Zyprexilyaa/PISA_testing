@@ -1,5 +1,6 @@
 import axios from 'axios';
-const API_BASE = import.meta.env.VITE_FUNCTIONS_URL || 'http://localhost:5000';
+export const FUNCTIONS_URL = import.meta.env.VITE_FUNCTIONS_URL || 'http://localhost:5000';
+const API_BASE = FUNCTIONS_URL;
 /**
  * Convert blob to base64 string
  */

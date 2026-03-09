@@ -9,13 +9,17 @@ import {
   User,
   onAuthStateChanged
 } from 'firebase/auth';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 import app from '../services/firebase';
+
+export type UserRole = 'teacher' | 'student';
 
 interface AuthContextType {
   user: User | null;
+  userRole: UserRole | null;
   loading: boolean;
   loginWithEmail: (email: string, password: string) => Promise<void>;
-  signUpWithEmail: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string, role: UserRole) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -24,14 +28,37 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
   const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Fetch user role from Firestore
+  const fetchUserRole = async (userId: string) => {
+    try {
+      const userDocRef = doc(db, 'users', userId);
+      const userDocSnap = await getDoc(userDocRef);
+      if (userDocSnap.exists()) {
+        const role = userDocSnap.data().role as UserRole;
+        setUserRole(role);
+        return role;
+      }
+    } catch (error) {
+      console.error('Error fetching user role:', error);
+    }
+    return null;
+  };
 
   // Listen for auth state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       console.log('Auth state changed:', currentUser?.email || 'No user');
       setUser(currentUser);
+      if (currentUser) {
+        await fetchUserRole(currentUser.uid);
+      } else {
+        setUserRole(null);
+      }
       setLoading(false);
     });
 
@@ -51,11 +78,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUpWithEmail = async (email: string, password: string) => {
+  const signUpWithEmail = async (email: string, password: string, role: UserRole) => {
     try {
       setLoading(true);
-      await createUserWithEmailAndPassword(auth, email, password);
-      console.log('Sign up successful');
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      
+      // Save user role to Firestore
+      const userDocRef = doc(db, 'users', userCredential.user.uid);
+      await setDoc(userDocRef, {
+        email,
+        role,
+        createdAt: new Date(),
+      });
+      
+      setUserRole(role);
+      console.log('Sign up successful with role:', role);
     } catch (error) {
       console.error('Sign up error:', error);
       throw error;
@@ -68,7 +105,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setLoading(true);
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      
+      // Check if user already has a role, if not default to student
+      const userDocRef = doc(db, 'users', result.user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      
+      if (!userDocSnap.exists()) {
+        // New Google user, default to student
+        await setDoc(userDocRef, {
+          email: result.user.email,
+          role: 'student',
+          createdAt: new Date(),
+        });
+        setUserRole('student');
+      } else {
+        const role = userDocSnap.data().role as UserRole;
+        setUserRole(role);
+      }
+      
       console.log('Google login successful');
     } catch (error) {
       console.error('Google login error:', error);
@@ -82,6 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setLoading(true);
       await signOut(auth);
+      setUserRole(null);
       console.log('Logout successful');
     } catch (error) {
       console.error('Logout error:', error);
@@ -92,7 +148,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, loginWithEmail, signUpWithEmail, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, userRole, loading, loginWithEmail, signUpWithEmail, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );

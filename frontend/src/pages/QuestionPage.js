@@ -5,8 +5,9 @@ import { AnalysisDisplay } from '../components/AnalysisDisplay';
 import { cleanupAudioUrl } from '../services/storage';
 import { analyzeStudentAnswer, transcribeAudio } from '../services/api';
 import { useLanguage } from '../contexts/LanguageContext';
-export const QuestionPage = ({ question, studentId, }) => {
-    const { t } = useLanguage();
+export const QuestionPage = ({ question, studentId, proposition, // NEW: destructure proposition
+ }) => {
+    const { t, language } = useLanguage();
     const [inputMethod, setInputMethod] = useState('voice');
     const [audioBlob, setAudioBlob] = useState(null);
     const [audioUrl, setAudioUrl] = useState(null);
@@ -57,6 +58,8 @@ export const QuestionPage = ({ question, studentId, }) => {
                 scoringGuideline: question.scoringGuideline,
                 studentId,
                 audioBase64: '',
+                proposition, // NEW: pass proposition with criteria
+                language: language, // NEW: pass language
             }, audioBlob || undefined);
             setAnalysisResult(result);
         }

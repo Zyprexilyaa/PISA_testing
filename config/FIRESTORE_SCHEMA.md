@@ -209,6 +209,91 @@ service cloud.firestore {
 
 ---
 
+### `classrooms`
+Stores classroom metadata created by teachers.
+
+```
+classrooms/
+├── documentId: string (auto-generated)
+├── teacherId: string (uid of teacher)
+├── className: string
+├── classKey: string (6-character join code)
+├── students: array<string> (student user IDs)
+├── createdAt: timestamp
+```
+
+**Example:**
+```json
+{
+  "teacherId": "teacher-abc123",
+  "className": "Math Class 2024",
+  "classKey": "ABC123",
+  "students": ["student-xyz789"],
+  "createdAt": "2024-03-01T10:00:00Z"
+}
+```
+
+---
+
+### `classroomSubmissions`
+Stores quiz/answer submissions that are associated with a classroom.
+
+```
+classroomSubmissions/
+├── documentId: string (auto-generated)
+├── classroomId: string (reference to classrooms document)
+├── studentId: string
+├── questionText: string
+├── userAnswer: string
+├── analysisResult: string (raw AI analysis or summary)
+├── score: number (0-100)
+├── submittedAt: timestamp
+└── classroomName?: string (optional denormalized classroom name)
+```
+
+**Example:**
+```json
+{
+  "classroomId": "classroom-abc123",
+  "studentId": "student-xyz789",
+  "questionText": "How does water pollution affect aquatic ecosystems?",
+  "userAnswer": "Water pollution harms fish and plants by...",
+  "analysisResult": "The answer demonstrates level 3 analytical thinking...",
+  "score": 82,
+  "submittedAt": "2024-03-01T10:30:00Z",
+  "classroomName": "Math Class 2024"
+}
+```
+
+---
+
+### `classroomMembers`
+Optional collection for tracking membership and roles in classrooms.
+
+> Note: Current implementation primarily uses the `students` array on each `classrooms` document. This collection can be added if you need more detailed membership tracking (e.g., per-student metadata, multiple roles).
+
+```
+classroomMembers/
+├── documentId: string (auto-generated)
+├── classroomId: string
+├── studentId: string
+├── role: 'student' | 'assistant'
+├── joinedAt: timestamp
+└── lastActivityAt?: timestamp
+```
+
+**Example:**
+```json
+{
+  "classroomId": "classroom-abc123",
+  "studentId": "student-xyz789",
+  "role": "student",
+  "joinedAt": "2024-03-01T09:55:00Z"
+}
+```
+
+---
+
 ## Firebase Storage Security Rules
 
 ```javascript

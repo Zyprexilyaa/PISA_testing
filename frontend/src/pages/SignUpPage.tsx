@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth, UserRole } from '../contexts/AuthContext';
 import './Auth.css';
 
 export const SignUpPage: React.FC = () => {
@@ -10,6 +10,7 @@ export const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState<UserRole>('student');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -31,7 +32,7 @@ export const SignUpPage: React.FC = () => {
         throw new Error('Passwords do not match');
       }
 
-      await signUpWithEmail(email, password);
+      await signUpWithEmail(email, password, role);
       navigate('/');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Sign up failed';
@@ -46,6 +47,7 @@ export const SignUpPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
+      // Google signup defaults to student role
       await loginWithGoogle();
       navigate('/');
     } catch (err) {
@@ -64,6 +66,29 @@ export const SignUpPage: React.FC = () => {
           <h2 className="auth-subtitle">Create Account</h2>
 
           <form onSubmit={handleEmailSignUp} className="auth-form">
+            {/* Role Selection */}
+            <div className="form-group">
+              <label>I am a:</label>
+              <div className="role-selector">
+                <button
+                  type="button"
+                  className={`role-btn ${role === 'student' ? 'active' : ''}`}
+                  onClick={() => setRole('student')}
+                  disabled={isSubmitting || loading}
+                >
+                  👨‍🎓 Student
+                </button>
+                <button
+                  type="button"
+                  className={`role-btn ${role === 'teacher' ? 'active' : ''}`}
+                  onClick={() => setRole('teacher')}
+                  disabled={isSubmitting || loading}
+                >
+                  👩‍🏫 Teacher
+                </button>
+              </div>
+            </div>
+
             <div className="form-group">
               <label htmlFor="email">Email</label>
               <input

@@ -23,7 +23,7 @@ type PageType = 'home' | 'question' | 'dashboard';
 
 export const MainApp: React.FC = () => {
   const { language, setLanguage } = useLanguage();
-  const { user, logout } = useAuth();
+  const { user, userRole, logout } = useAuth();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState<PageType>('home');
   const [studentId] = useState('student-' + Math.random().toString(36).substr(2, 9));
@@ -94,12 +94,32 @@ export const MainApp: React.FC = () => {
             >
               {language === 'th' ? 'หน้าแรก' : 'Home'}
             </button>
-            <button
-              className={`nav-link ${currentPage === 'question' ? 'active' : ''}`}
-              onClick={() => setCurrentPage('question')}
-            >
-              {language === 'th' ? 'ฝึกฝน' : 'Practice'}
-            </button>
+            {/* Role-based navigation */}
+            {userRole === 'teacher' ? (
+              <button
+                className="nav-link"
+                onClick={() => navigate('/create-classroom')}
+              >
+                {language === 'th' ? 'ห้องเรียนของฉัน' : 'My Classrooms'}
+              </button>
+            ) : (
+              <>
+                <button
+                  className={`nav-link ${currentPage === 'question' ? 'active' : ''}`}
+                  onClick={() => setCurrentPage('question')}
+                >
+                  {language === 'th' ? 'ฝึกฝน' : 'Practice'}
+                </button>
+                {userRole === 'student' && (
+                  <button
+                    className="nav-link"
+                    onClick={() => navigate('/join-classroom')}
+                  >
+                    {language === 'th' ? 'เข้าร่วมห้องเรียน' : 'Join Classroom'}
+                  </button>
+                )}
+              </>
+            )}
             <button
               className="nav-link language-toggle"
               onClick={() => setLanguage(language === 'th' ? 'en' : 'th')}
