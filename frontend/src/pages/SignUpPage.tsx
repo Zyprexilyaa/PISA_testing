@@ -13,8 +13,6 @@ export const SignUpPage: React.FC = () => {
   const [role, setRole] = useState<UserRole>('student');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showGoogleRoleModal, setShowGoogleRoleModal] = useState(false);
-  const [googleRole, setGoogleRole] = useState<UserRole>('student');
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,23 +42,18 @@ export const SignUpPage: React.FC = () => {
     }
   };
 
-  const handleGoogleSignUpClick = () => {
-    setShowGoogleRoleModal(true);
-  };
-
-  const handleGoogleRoleConfirm = async (selectedRole: UserRole) => {
+  const handleGoogleSignUpClick = async () => {
     setError(null);
     setIsSubmitting(true);
 
     try {
-      await signUpWithGoogleRole(selectedRole);
-      navigate('/');
+      await signUpWithGoogleRole();
+      navigate('/setup-profile');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Google sign up failed';
       setError(errorMessage);
     } finally {
       setIsSubmitting(false);
-      setShowGoogleRoleModal(false);
     }
   };
 
@@ -169,61 +162,6 @@ export const SignUpPage: React.FC = () => {
           </p>
         </div>
       </div>
-
-      {/* Google Role Selection Modal */}
-      {showGoogleRoleModal && (
-        <div className="modal-overlay">
-          <div className="modal-dialog">
-            <div className="modal-header">
-              <h2>Choose Your Role for Google Sign Up</h2>
-            </div>
-            <div className="modal-body">
-              <p className="modal-description">
-                Select your role to complete your Google sign up:
-              </p>
-
-              <div className="role-selector-container">
-                <div
-                  className={`role-card ${googleRole === 'student' ? 'active' : ''}`}
-                  onClick={() => setGoogleRole('student')}
-                  role="button"
-                  tabIndex={0}
-                >
-                  <div className="role-icon">👨‍🎓</div>
-                  <div className="role-title">Student</div>
-                  <div className="role-description">Learn and improve your thinking skills</div>
-                </div>
-
-                <div
-                  className={`role-card ${googleRole === 'teacher' ? 'active' : ''}`}
-                  onClick={() => setGoogleRole('teacher')}
-                  role="button"
-                  tabIndex={0}
-                >
-                  <div className="role-icon">👩‍🏫</div>
-                  <div className="role-title">Teacher</div>
-                  <div className="role-description">Create classrooms and monitor students</div>
-                </div>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button
-                onClick={() => setShowGoogleRoleModal(false)}
-                className="btn btn-outline"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleGoogleRoleConfirm(googleRole)}
-                disabled={isSubmitting || loading}
-                className="btn btn-primary"
-              >
-                {isSubmitting ? '🔄...' : 'Continue with Google'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

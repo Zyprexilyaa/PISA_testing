@@ -5,6 +5,7 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { LoginPage } from './pages/LoginPage';
 import { SignUpPage } from './pages/SignUpPage';
+import { GoogleProfileSetupPage } from './pages/GoogleProfileSetupPage';
 import { MainApp } from './pages/MainApp';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { CreateClassroomPage } from './pages/CreateClassroomPage';
@@ -22,6 +23,13 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/teacher-login" element={<TeacherLoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
+            
+            {/* Google Profile Setup Route */}
+            <Route path="/setup-profile" element={
+              <ProtectedRoute>
+                <GoogleProfileSetupPage />
+              </ProtectedRoute>
+            } />
             
             {/* Protected Routes - Classroom Features */}
             <Route path="/create-classroom" element={

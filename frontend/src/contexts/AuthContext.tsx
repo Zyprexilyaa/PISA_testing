@@ -18,10 +18,12 @@ interface AuthContextType {
   user: User | null;
   userRole: UserRole | null;
   loading: boolean;
+  needsProfileSetup: boolean;
   loginWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, role: UserRole) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
-  signUpWithGoogleRole: (role: UserRole) => Promise<void>;
+  signUpWithGoogleRole: () => Promise<void>;
+  completeGoogleProfileSetup: (username: string, role: UserRole) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -31,6 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
+  const [needsProfileSetup, setNeedsProfileSetup] = useState(false);
   const auth = getAuth(app);
   const db = getFirestore(app);
 
@@ -134,32 +137,74 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUpWithGoogleRole = async (role: UserRole) => {
+  const signUpWithGoogleRole = async () => {
     try {
       setLoading(true);
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
-      
+
       // Check if user already has a role
       const userDocRef = doc(db, 'users', result.user.uid);
       const userDocSnap = await getDoc(userDocRef);
-      
+
       if (!userDocSnap.exists()) {
-        // New Google user, use selected role
+        // New Google user, create temporary record and set setup flag
         await setDoc(userDocRef, {
           email: result.user.email,
-          role,
           createdAt: new Date(),
+          setupNeeded: true,
         });
-        setUserRole(role);
+        setNeedsProfileSetup(true);
+        setUserRole(null);
       } else {
-        const existingRole = userDocSnap.data().role as UserRole;
-        setUserRole(existingRole);
+        // Existing user
+        const userData = userDocSnap.data();
+        if (userData.setupNeeded) {
+          setNeedsProfileSetup(true);
+          setUserRole(null);
+        } else {
+          const role = userData.role as UserRole;
+          setUserRole(role);
+          setNeedsProfileSetup(false);
+        }
       }
-      
-      console.log('Google sign up successful with role:', role);
+
+      console.log('Google sign up initiated');
     } catch (error) {
       console.error('Google sign up error:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const completeGoogleProfileSetup = async (username: string, role: UserRole) => {
+    try {
+      setLoading(true);
+      if (!user) {
+        throw new Error('No authenticated user found');
+      }
+
+      const userDocRef = doc(db, 'users', user.uid);
+      
+      // Check if username is already taken
+      // For now, we'll just update the user document
+      // In production, you'd want to check uniqueness first
+      await setDoc(
+        userDocRef,
+        {
+          username: username.trim(),
+          role,
+          setupNeeded: false,
+        },
+        { merge: true }
+      );
+
+      setUserRole(role);
+      setNeedsProfileSetup(false);
+      console.log('Profile setup completed with username and role');
+    } catch (error) {
+      console.error('Profile setup error:', error);
       throw error;
     } finally {
       setLoading(false);
@@ -181,7 +226,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, userRole, loading, loginWithEmail, signUpWithEmail, loginWithGoogle, signUpWithGoogleRole, logout }}>
+    <AuthContext.Provider value={{ user, userRole, loading, needsProfileSetup, loginWithEmail, signUpWithEmail, loginWithGoogle, signUpWithGoogleRole, completeGoogleProfileSetup, logout }}>
       {children}
     </AuthContext.Provider>
   );
