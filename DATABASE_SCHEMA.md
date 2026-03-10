@@ -107,6 +107,177 @@ Historic record of all analyses (for audit trail).
 
 **Collection Path:** `analyses/`
 
+### 4. **users** - User Accounts and Profiles
+
+Stores user account information including roles for RBAC.
+
+**Collection Path:** `users/`
+
+**Document Structure:**
+```typescript
+{
+  // Identity
+  email: string;                  // User email address
+  displayName?: string;           // User's display name
+  
+  // Role Management
+  role: 'teacher' | 'student';    // User role for access control
+  
+  // Account Info
+  createdAt: Timestamp;           // Account creation timestamp
+  lastLogin?: Timestamp;          // Last login time
+  
+  // Profile (optional)
+  photoURL?: string;              // Profile picture URL
+  institution?: string;           // School/Institution name
+}
+```
+
+**Example:**
+```json
+{
+  "email": "teacher@example.com",
+  "displayName": "Mr. Smith",
+  "role": "teacher",
+  "createdAt": "2024-03-09T10:00:00Z",
+  "institution": "Central High School"
+}
+```
+
+### 5. **classrooms** - Teacher-Created Classroom Sessions
+
+Teacher-managed classrooms where students can join using unique codes.
+
+**Collection Path:** `classrooms/`
+
+**Document Structure:**
+```typescript
+{
+  // Classroom Info
+  className: string;              // Name of the classroom
+  classKey: string;               // 6-character unique join code (e.g., "ABC123")
+  
+  // Teacher Info
+  teacherId: string;              // Reference to teacher user ID
+  teacherName?: string;           // Teacher's display name (denormalized)
+  
+  // Membership
+  students: string[];             // Array of student user IDs in this classroom
+  maxStudents?: number;           // Maximum students allowed (optional)
+  
+  // Settings
+  language: 'th' | 'en';           // Default language for classroom
+  isActive: boolean;              // Whether classroom is accepting new students
+  description?: string;           // Classroom description
+  
+  // Timestamps
+  createdAt: Timestamp;           // When classroom was created
+  updatedAt: Timestamp;           // Last update time
+}
+```
+
+**Example:**
+```json
+{
+  "className": "Advanced Physics 2024",
+  "classKey": "PHY234",
+  "teacherId": "teacher-uid-123",
+  "teacherName": "Dr. Johnson",
+  "students": ["student-uid-001", "student-uid-002", "student-uid-003"],
+  "language": "th",
+  "isActive": true,
+  "createdAt": "2024-03-09T10:00:00Z",
+  "updatedAt": "2024-03-10T14:30:00Z"
+}
+```
+
+### 6. **classroomSubmissions** - Student Quiz Submissions in Classrooms
+
+Tracks individual student submissions within the context of a classroom.
+
+**Collection Path:** `classroomSubmissions/`
+
+**Document Structure:**
+```typescript
+{
+  // Contextual Info
+  classroomId: string;            // Reference to classroom
+  studentId: string;              // Reference to student user
+  studentEmail?: string;          // Student email (denormalized)
+  
+  // Question & Answer
+  questionText: string;           // The question being answered
+  userAnswer: string;             // Student's answer/transcription
+  
+  // Analysis Results
+  score: number;                  // Score out of 100
+  thinkingLevel: number;          // PISA thinking level (1-4)
+  feedback: string;               // AI feedback on response
+  strengths: string[];            // Identified strengths
+  improvements: string[];         // Suggested improvements
+  
+  // Question Metadata
+  difficulty: string;             // Question difficulty
+  category: string;               // Question category
+  expectedAnswer: string;         // Reference answer
+  
+  // Timestamps
+  submittedAt: Timestamp;         // When answer was submitted
+  analyzedAt: Timestamp;          // When analysis was completed
+}
+```
+
+**Example:**
+```json
+{
+  "classroomId": "classroom-456",
+  "studentId": "student-uid-001",
+  "studentEmail": "john@student.com",
+  "questionText": "Explain how water pollution affects ecosystems...",
+  "userAnswer": "Water pollution creates an imbalance in aquatic ecosystems...",
+  "score": 82,
+  "thinkingLevel": 3,
+  "feedback": "Good analytical thinking with clear explanations.",
+  "strengths": ["Clear structure", "Specific examples"],
+  "improvements": ["Add more evidence-based reasoning"],
+  "difficulty": "hard",
+  "category": "critical-thinking",
+  "submittedAt": "2024-03-10T14:25:00Z",
+  "analyzedAt": "2024-03-10T14:25:15Z"
+}
+```
+
+### 7. **classroomMembers** - Student Membership Tracking (Optional)
+
+Tracks student enrollment dates and status within classrooms (alternative to denormalizing in classrooms.students).
+
+**Collection Path:** `classroomMembers/{classroomId}/members/`
+
+**Document Structure:**
+```typescript
+{
+  // Student Info
+  studentId: string;              // Reference to student user ID
+  studentEmail: string;           // Student email
+  
+  // Membership Status
+  joinedAt: Timestamp;            // When student joined classroom
+  status: 'active' | 'inactive';  // Membership status
+  isRemoved: boolean;             // Whether student was removed
+}
+```
+
+**Example:**
+```json
+{
+  "studentId": "student-uid-001",
+  "studentEmail": "john@student.com",
+  "joinedAt": "2024-03-09T15:00:00Z",
+  "status": "active",
+  "isRemoved": false
+}
+```
+
 ## API Endpoints
 
 ### Proposition Management

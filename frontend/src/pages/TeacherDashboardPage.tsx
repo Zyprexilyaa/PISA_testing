@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { getClassroomSubmissions, ClassroomSubmission } from '../services/classroomService';
+import { getClassroomSubmissions, getClassroomById, ClassroomSubmission, Classroom } from '../services/classroomService';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import app from '../services/firebase';
 import './Classroom.css';
 
-type SubmissionWithDetails = ClassroomSubmission & {
-  studentName: string;
-  studentEmail: string;
-  classroomName?: string;
-};
+interface SubmissionWithStudentDetails extends ClassroomSubmission {
+  studentDisplayName?: string;
+}
 
 export const TeacherDashboardPage: React.FC = () => {
   const { classroomId } = useParams<{ classroomId: string }>();
   const navigate = useNavigate();
   const { user, userRole } = useAuth();
-  const [submissions, setSubmissions] = useState<SubmissionWithDetails[]>([]);
+  const [classroom, setClassroom] = useState<Classroom | null>(null);
+  const [submissions, setSubmissions] = useState<SubmissionWithStudentDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [classroomName, setClassroomName] = useState<string>('');
 
   // Redirect if not teacher
   useEffect(() => {
@@ -26,39 +26,65 @@ export const TeacherDashboardPage: React.FC = () => {
     }
   }, [userRole, navigate]);
 
-  // Load classroom submissions
+  // Load classroom details and submissions
   useEffect(() => {
-    const loadSubmissions = async () => {
+    const loadClassroomData = async () => {
       if (!classroomId || !user?.uid) return;
 
       try {
         setLoading(true);
-        const classroomSubmissions = await getClassroomSubmissions(classroomId);
+        
+        // Load classroom details
+        const classroomData = await getClassroomById(classroomId);
+        
+        if (!classroomData) {
+          setError('Classroom not found');
+          return;
+        }
+        
+        // Check if current user is the teacher
+        if (classroomData.teacherId !== user.uid) {
+          setError('You do not have permission to view this classroom');
+          return;
+        }
+        
+        setClassroom(classroomData);
 
-        // For now, we'll use student IDs as names (in a real app, you'd fetch user details)
-        const submissionsWithDetails: SubmissionWithDetails[] = classroomSubmissions.map(sub => ({
-          ...sub,
-          studentName: `Student ${sub.studentId.slice(-4)}`, // Last 4 chars of ID
-          studentEmail: `${sub.studentId.slice(-4)}@student.edu`, // Mock email
-          classroomName: sub.classroomName,
-        }));
+        // Load submissions
+        const classroomSubmissions = await getClassroomSubmissions(classroomId);
+        const db = getFirestore(app);
+
+        // Enrich submissions with student display names
+        const submissionsWithDetails: SubmissionWithStudentDetails[] = await Promise.all(
+          classroomSubmissions.map(async (sub) => {
+            try {
+              const userDocRef = doc(db, 'users', sub.studentId);
+              const userDocSnap = await getDoc(userDocRef);
+              const studentData = userDocSnap.data();
+              return {
+                ...sub,
+                studentDisplayName: studentData?.displayName || studentData?.email || `Student ${sub.studentId.slice(-6)}`,
+              };
+            } catch (err) {
+              console.error('Error fetching student details:', err);
+              return {
+                ...sub,
+                studentDisplayName: `Student ${sub.studentId.slice(-6)}`,
+              };
+            }
+          })
+        );
 
         setSubmissions(submissionsWithDetails);
-
-        // Set classroom name from first submission if available
-        if (submissionsWithDetails.length > 0 && submissionsWithDetails[0].classroomName) {
-          setClassroomName(submissionsWithDetails[0].classroomName);
-        }
-
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load submissions';
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load classroom data';
         setError(errorMessage);
       } finally {
         setLoading(false);
       }
     };
 
-    loadSubmissions();
+    loadClassroomData();
   }, [classroomId, user?.uid]);
 
   const getScoreColor = (score: number) => {
@@ -117,14 +143,14 @@ export const TeacherDashboardPage: React.FC = () => {
     <div className="classroom-page">
       <div className="classroom-container">
         <div className="classroom-header">
-          <h1>📊 {classroomName || 'Classroom'} Dashboard</h1>
-          <p>View student submissions and performance</p>
+          <h1>📊 {classroom?.className || 'Classroom'} Dashboard</h1>
+          <p>📍 Code: <strong>{classroom?.classKey}</strong> | 👥 Students: {classroom?.students.length || 0}</p>
         </div>
 
         {/* Overview Stats */}
         <div className="stats-grid">
           <div className="stat-card">
-            <h3>👥 Total Students</h3>
+            <h3>📤 Submissions Received</h3>
             <div className="stat-value">{submissions.length}</div>
           </div>
           <div className="stat-card">
@@ -165,8 +191,7 @@ export const TeacherDashboardPage: React.FC = () => {
                     <tr key={submission.id}>
                       <td>
                         <div className="student-info">
-                          <strong>{submission.studentName}</strong>
-                          <small>{submission.studentEmail}</small>
+                          <strong>{submission.studentDisplayName}</strong>
                         </div>
                       </td>
                       <td>

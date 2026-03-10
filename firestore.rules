@@ -1,0 +1,86 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user is a teacher
+    function isTeacher() {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'teacher';
+    }
+    
+    // Helper function to check if user is a student
+    function isStudent() {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'student';
+    }
+    
+    // Helper function to check if user is the document owner
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // ============ USERS COLLECTION ============
+    // Users can create/read/update their own user document
+    match /users/{userId} {
+      allow create: if isOwner(userId);
+      allow read: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if false; // Prevent deletion
+    }
+    
+    // ============ PROPOSITIONS COLLECTION ============
+    // Anyone can read propositions (for practice)
+    match /propositions/{documentId} {
+      allow read: if isAuthenticated();
+      allow create: if isTeacher(); // Teachers can add propositions
+      allow update: if isTeacher(); // Teachers can update propositions
+      allow delete: if false; // Prevent deletion
+    }
+    
+    // ============ ANSWERS COLLECTION ============
+    // Subcollection: answers/{userId}/submissions/{submissionId}
+    match /answers/{userId}/submissions/{submissionId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
+    }
+    
+    // ============ CLASSROOMS COLLECTION ============
+    // Teachers can create and manage classrooms
+    match /classrooms/{classroomId} {
+      allow read: if isAuthenticated() && 
+        (isTeacher() && resource.data.teacherId == request.auth.uid || 
+         isStudent() && request.auth.uid in resource.data.students);
+      allow create: if isTeacher();
+      allow update: if isTeacher() && resource.data.teacherId == request.auth.uid;
+      allow delete: if isTeacher() && resource.data.teacherId == request.auth.uid;
+    }
+    
+    // ============ CLASSROOM SUBMISSIONS COLLECTION ============
+    // Students save submissions, teachers view all submissions in their classrooms
+    match /classroomSubmissions/{submissionId} {
+      allow create: if isStudent();
+      allow read: if isAuthenticated() && (
+        isStudent() && get(/databases/$(database)/documents/classroomSubmissions/$(submissionId)).data.studentId == request.auth.uid ||
+        isTeacher() && get(/databases/$(database)/documents/classrooms/$(get(/databases/$(database)/documents/classroomSubmissions/$(submissionId)).data.classroomId)).data.teacherId == request.auth.uid
+      );
+    }
+    
+    // ============ CLASSROOM MEMBERS COLLECTION ============
+    // Subcollection for granular membership tracking
+    match /classrooms/{classroomId}/members/{memberId} {
+      allow read: if isAuthenticated() && (
+        isTeacher() && get(/databases/$(database)/documents/classrooms/$(classroomId)).data.teacherId == request.auth.uid ||
+        isStudent() && request.auth.uid in get(/databases/$(database)/documents/classrooms/$(classroomId)).data.students
+      );
+      allow write: if isTeacher() && get(/databases/$(database)/documents/classrooms/$(classroomId)).data.teacherId == request.auth.uid;
+    }
+    
+  }
+}

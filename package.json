@@ -1,6 +1,18 @@
 {
   "name": "pisa-project",
   "version": "1.0.0",
+  "scripts": {
+    "start": "npm run dev",
+    "dev": "npm run dev:frontend & npm run dev:backend",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend/functions && npm run dev",
+    "start:frontend": "cd frontend && npm run dev",
+    "start:backend": "cd backend/functions && npm start",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:buildfunctions": "cd backend/functions && npm run build",
+    "deploy": "firebase deploy"
+  },
   "dependencies": {
     "firebase": "^12.10.0"
   }

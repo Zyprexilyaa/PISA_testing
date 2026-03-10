@@ -137,6 +137,28 @@ export async function saveClassroomSubmission(submission) {
     }
 }
 /**
+ * Get classroom details by ID
+ */
+export async function getClassroomById(classroomId) {
+    try {
+        const db = getFirestore(app);
+        const docRef = doc(db, 'classrooms', classroomId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return {
+                id: docSnap.id,
+                ...docSnap.data(),
+                createdAt: docSnap.data().createdAt.toDate(),
+            };
+        }
+        return null;
+    }
+    catch (error) {
+        console.error('Error getting classroom:', error);
+        return null;
+    }
+}
+/**
  * Get all submissions for a classroom
  */
 export async function getClassroomSubmissions(classroomId) {
