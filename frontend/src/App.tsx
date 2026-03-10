@@ -12,6 +12,9 @@ import { CreateClassroomPage } from './pages/CreateClassroomPage';
 import { JoinClassroomPage } from './pages/JoinClassroomPage';
 import { TeacherDashboardPage } from './pages/TeacherDashboardPage';
 import { TeacherLoginPage } from './pages/TeacherLoginPage';
+import { TeacherAddPropositionPage } from './pages/TeacherAddPropositionPage';
+import { TeacherPropositionListPage } from './pages/TeacherPropositionListPage';
+import { PracticePage } from './pages/PracticePage';
 
 function App() {
   return (
@@ -58,6 +61,26 @@ function App() {
             <Route path="/teacher-dashboard/:classroomId" element={
               <ProtectedRoute allowedRoles={['teacher']}>
                 <TeacherDashboardPage />
+              </ProtectedRoute>
+            } />
+
+            {/* Proposition Management */}
+            <Route path="/teacher/propositions" element={
+              <ProtectedRoute allowedRoles={[ 'teacher' ]}>
+                <TeacherPropositionListPage />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/teacher/propositions/new" element={
+              <ProtectedRoute allowedRoles={[ 'teacher' ]}>
+                <TeacherAddPropositionPage />
+              </ProtectedRoute>
+            } />
+
+            {/* Student Practice */}
+            <Route path="/practice" element={
+              <ProtectedRoute allowedRoles={[ 'student' ]}>
+                <PracticePage />
               </ProtectedRoute>
             } />
             

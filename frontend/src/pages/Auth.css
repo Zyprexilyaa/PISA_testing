@@ -14,11 +14,26 @@
   max-width: 400px;
 }
 
+/* Wider page container for content-heavy pages (propositions, practice) */
+.page-container {
+  width: 100%;
+  max-width: 900px;
+}
+
 .auth-card {
   background: white;
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Page card variant for wider content */
+.page-card {
+  background: linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 18px 40px rgba(102, 126, 234, 0.12);
   animation: slideUp 0.3s ease-out;
 }
 
@@ -230,6 +245,61 @@
 
 .role-card.active .role-description {
   opacity: 0.9;
+}
+
+/* Proposition & Practice styles */
+.proposition-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.proposition-item {
+  background: linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);
+  border: 1px solid rgba(102,126,234,0.08);
+  padding: 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 20px rgba(102,126,234,0.06);
+}
+
+.proposition-item h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+}
+
+.proposition-meta {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.75rem;
+}
+
+.practice-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.teacher-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Button theme overrides */
+.btn-primary {
+  background: linear-gradient(90deg,#667eea 0%,#764ba2 100%);
+  border: none;
+  color: white;
+  padding: 0.6rem 1rem;
+  border-radius: 0.6rem;
+  font-weight: 700;
+}
+
+.btn-outline {
+  background: white;
+  color: #667eea;
+  border: 2px solid rgba(102,126,234,0.18);
 }
 
 /* Modal Styles */
