@@ -21,6 +21,7 @@ interface AuthContextType {
   loginWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, role: UserRole) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
+  signUpWithGoogleRole: (role: UserRole) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -133,6 +134,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const signUpWithGoogleRole = async (role: UserRole) => {
+    try {
+      setLoading(true);
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      
+      // Check if user already has a role
+      const userDocRef = doc(db, 'users', result.user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      
+      if (!userDocSnap.exists()) {
+        // New Google user, use selected role
+        await setDoc(userDocRef, {
+          email: result.user.email,
+          role,
+          createdAt: new Date(),
+        });
+        setUserRole(role);
+      } else {
+        const existingRole = userDocSnap.data().role as UserRole;
+        setUserRole(existingRole);
+      }
+      
+      console.log('Google sign up successful with role:', role);
+    } catch (error) {
+      console.error('Google sign up error:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = async () => {
     try {
       setLoading(true);
@@ -148,7 +181,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, userRole, loading, loginWithEmail, signUpWithEmail, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, userRole, loading, loginWithEmail, signUpWithEmail, loginWithGoogle, signUpWithGoogleRole, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -5,7 +5,7 @@ import './Auth.css';
 
 export const SignUpPage: React.FC = () => {
   const navigate = useNavigate();
-  const { signUpWithEmail, loginWithGoogle, loading } = useAuth();
+  const { signUpWithEmail, signUpWithGoogleRole, loading } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,6 +13,8 @@ export const SignUpPage: React.FC = () => {
   const [role, setRole] = useState<UserRole>('student');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showGoogleRoleModal, setShowGoogleRoleModal] = useState(false);
+  const [googleRole, setGoogleRole] = useState<UserRole>('student');
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,19 +44,23 @@ export const SignUpPage: React.FC = () => {
     }
   };
 
-  const handleGoogleSignUp = async () => {
+  const handleGoogleSignUpClick = () => {
+    setShowGoogleRoleModal(true);
+  };
+
+  const handleGoogleRoleConfirm = async (selectedRole: UserRole) => {
     setError(null);
     setIsSubmitting(true);
 
     try {
-      // Google signup defaults to student role
-      await loginWithGoogle();
+      await signUpWithGoogleRole(selectedRole);
       navigate('/');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Google sign up failed';
       setError(errorMessage);
     } finally {
       setIsSubmitting(false);
+      setShowGoogleRoleModal(false);
     }
   };
 
@@ -66,26 +72,31 @@ export const SignUpPage: React.FC = () => {
           <h2 className="auth-subtitle">Create Account</h2>
 
           <form onSubmit={handleEmailSignUp} className="auth-form">
-            {/* Role Selection */}
+            {/* Beautiful Role Selection */}
             <div className="form-group">
-              <label>I am a:</label>
-              <div className="role-selector">
-                <button
-                  type="button"
-                  className={`role-btn ${role === 'student' ? 'active' : ''}`}
+              <label>Choose Your Role:</label>
+              <div className="role-selector-container">
+                <div
+                  className={`role-card ${role === 'student' ? 'active' : ''}`}
                   onClick={() => setRole('student')}
-                  disabled={isSubmitting || loading}
+                  role="button"
+                  tabIndex={0}
                 >
-                  👨‍🎓 Student
-                </button>
-                <button
-                  type="button"
-                  className={`role-btn ${role === 'teacher' ? 'active' : ''}`}
+                  <div className="role-icon">👨‍🎓</div>
+                  <div className="role-title">Student</div>
+                  <div className="role-description">Learn and practice thinking skills</div>
+                </div>
+
+                <div
+                  className={`role-card ${role === 'teacher' ? 'active' : ''}`}
                   onClick={() => setRole('teacher')}
-                  disabled={isSubmitting || loading}
+                  role="button"
+                  tabIndex={0}
                 >
-                  👩‍🏫 Teacher
-                </button>
+                  <div className="role-icon">👩‍🏫</div>
+                  <div className="role-title">Teacher</div>
+                  <div className="role-description">Manage classrooms & track progress</div>
+                </div>
               </div>
             </div>
 
@@ -143,7 +154,7 @@ export const SignUpPage: React.FC = () => {
           <div className="divider">or</div>
 
           <button
-            onClick={handleGoogleSignUp}
+            onClick={handleGoogleSignUpClick}
             disabled={isSubmitting || loading}
             className="btn btn-google btn-full"
           >
@@ -158,6 +169,61 @@ export const SignUpPage: React.FC = () => {
           </p>
         </div>
       </div>
+
+      {/* Google Role Selection Modal */}
+      {showGoogleRoleModal && (
+        <div className="modal-overlay">
+          <div className="modal-dialog">
+            <div className="modal-header">
+              <h2>Choose Your Role for Google Sign Up</h2>
+            </div>
+            <div className="modal-body">
+              <p className="modal-description">
+                Select your role to complete your Google sign up:
+              </p>
+
+              <div className="role-selector-container">
+                <div
+                  className={`role-card ${googleRole === 'student' ? 'active' : ''}`}
+                  onClick={() => setGoogleRole('student')}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <div className="role-icon">👨‍🎓</div>
+                  <div className="role-title">Student</div>
+                  <div className="role-description">Learn and improve your thinking skills</div>
+                </div>
+
+                <div
+                  className={`role-card ${googleRole === 'teacher' ? 'active' : ''}`}
+                  onClick={() => setGoogleRole('teacher')}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <div className="role-icon">👩‍🏫</div>
+                  <div className="role-title">Teacher</div>
+                  <div className="role-description">Create classrooms and monitor students</div>
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button
+                onClick={() => setShowGoogleRoleModal(false)}
+                className="btn btn-outline"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleGoogleRoleConfirm(googleRole)}
+                disabled={isSubmitting || loading}
+                className="btn btn-primary"
+              >
+                {isSubmitting ? '🔄...' : 'Continue with Google'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
