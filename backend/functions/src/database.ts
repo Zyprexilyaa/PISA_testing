@@ -10,19 +10,45 @@ if (process.env.FIRESTORE_EMULATOR_HOST) {
   console.log(`📡 Using Firestore emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`);
 }
 
-// Initialize Firebase Admin SDK
+// Initialize Firebase Admin SDK with flexible credential handling.
+// In production (e.g., Render) set the service account JSON in the
+// `FIREBASE_SERVICE_ACCOUNT` environment variable (stringified JSON).
+// Locally you can set `GOOGLE_APPLICATION_CREDENTIALS` to the key file path.
 if (admin.apps.length === 0) {
   console.log('⚙️  Creating new Firebase app instance...');
-  
+
   try {
-    admin.initializeApp({
-      projectId: projectId,
-      ...(process.env.FIRESTORE_EMULATOR_HOST ? {} : {}), // In emulator, credentials come from environment
-    });
-    console.log('✅ Firebase initialized successfully');
+    if (process.env.FIREBASE_EMULATOR_HOST) {
+      // When using the emulator, no credentials are required
+      admin.initializeApp({ projectId });
+      console.log('✅ Firebase initialized for emulator');
+    } else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+      // Service account provided as environment variable (recommended for Render)
+      try {
+        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT as string);
+        admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
+          projectId,
+        });
+        console.log('✅ Firebase initialized with service account from env');
+      } catch (err) {
+        console.error('❌ Failed to parse FIREBASE_SERVICE_ACCOUNT JSON:', err);
+        throw err;
+      }
+    } else {
+      // Fall back to Application Default Credentials if available
+      try {
+        admin.initializeApp({ credential: admin.credential.applicationDefault(), projectId });
+        console.log('✅ Firebase initialized with application default credentials');
+      } catch (err) {
+        console.error('❌ Firebase initialization failed - no credentials available:', err);
+        console.error('Please set FIREBASE_SERVICE_ACCOUNT (stringified JSON) or GOOGLE_APPLICATION_CREDENTIALS.');
+        throw err;
+      }
+    }
   } catch (error) {
     console.error('❌ Firebase initialization failed:', error);
-    process.exit(1);
+    // Do not exit the process on render - let the server return errors, but log clearly
   }
 } else {
   console.log('♻️  Firebase already initialized');
