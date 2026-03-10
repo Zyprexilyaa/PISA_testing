@@ -58,7 +58,13 @@ service cloud.firestore {
         (isTeacher() && resource.data.teacherId == request.auth.uid || 
          isStudent() && request.auth.uid in resource.data.students);
       allow create: if isTeacher();
-      allow update: if isTeacher() && resource.data.teacherId == request.auth.uid;
+      // Teachers can update their classroom. Students are allowed to add themselves
+      // to the classroom by updating the `students` array (their uid must be present
+      // in the new data and the teacherId must remain unchanged).
+      allow update: if (
+        (isTeacher() && resource.data.teacherId == request.auth.uid) ||
+        (isAuthenticated() && request.auth.uid in request.resource.data.students && request.resource.data.teacherId == resource.data.teacherId)
+      );
       allow delete: if isTeacher() && resource.data.teacherId == request.auth.uid;
     }
     
@@ -75,11 +81,19 @@ service cloud.firestore {
     // ============ CLASSROOM MEMBERS COLLECTION ============
     // Subcollection for granular membership tracking
     match /classrooms/{classroomId}/members/{memberId} {
+      // Members can be read by the classroom teacher or the member themselves
       allow read: if isAuthenticated() && (
-        isTeacher() && get(/databases/$(database)/documents/classrooms/$(classroomId)).data.teacherId == request.auth.uid ||
-        isStudent() && request.auth.uid in get(/databases/$(database)/documents/classrooms/$(classroomId)).data.students
+        (isTeacher() && get(/databases/$(database)/documents/classrooms/$(classroomId)).data.teacherId == request.auth.uid) ||
+        (request.auth.uid == memberId)
       );
-      allow write: if isTeacher() && get(/databases/$(database)/documents/classrooms/$(classroomId)).data.teacherId == request.auth.uid;
+
+      // Allow students to create their own membership document when joining.
+      // Require that the memberId matches the authenticated user and that the
+      // classroom exists.
+      allow create: if isAuthenticated() && request.auth.uid == memberId && exists(/databases/$(database)/documents/classrooms/$(classroomId));
+
+      // Allow teachers to update/delete membership documents for management.
+      allow update, delete: if isTeacher() && get(/databases/$(database)/documents/classrooms/$(classroomId)).data.teacherId == request.auth.uid;
     }
     
   }
