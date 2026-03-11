@@ -97,6 +97,7 @@ app.post('/transcribeAudio', async (req: Request, res: Response) => {
 app.post('/saveProposition', async (req: Request, res: Response) => {
   try {
     const propositionData = req.body;
+    console.log('📝 saveProposition endpoint called with data:', propositionData);
 
     // Validate required fields
     if (
@@ -120,9 +121,13 @@ app.post('/saveProposition', async (req: Request, res: Response) => {
       ...propositionData,
     });
   } catch (error) {
-    console.error('Error in saveProposition endpoint:', error);
+    console.error('❌ Error in saveProposition endpoint:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const stack = error instanceof Error ? error.stack : 'No stack';
+    console.error('Error stack:', stack);
     res.status(500).json({
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: errorMessage,
+      stack: stack
     });
   }
 });
@@ -134,9 +139,11 @@ app.post('/saveProposition', async (req: Request, res: Response) => {
 app.get('/propositions', async (req: Request, res: Response) => {
   try {
     const language = (req.query.language as string) || 'th';
+    console.log('📖 getPropositions endpoint called for language:', language);
 
     // Get propositions
     const propositions = await getPropositions(language);
+    console.log('✅ Retrieved', propositions.length, 'propositions for language:', language);
 
     res.status(200).json({
       language,
@@ -144,9 +151,13 @@ app.get('/propositions', async (req: Request, res: Response) => {
       propositions,
     });
   } catch (error) {
-    console.error('Error in getPropositions endpoint:', error);
+    console.error('❌ Error in getPropositions endpoint:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const stack = error instanceof Error ? error.stack : 'No stack';
+    console.error('Error stack:', stack);
     res.status(500).json({
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: errorMessage,
+      stack: stack
     });
   }
 });
@@ -159,15 +170,21 @@ app.get('/propositions', async (req: Request, res: Response) => {
 app.post('/joinClassroom', async (req: Request, res: Response) => {
   try {
     const { studentId, classKey } = req.body;
+    console.log('🏫 joinClassroom endpoint called:', { studentId, classKey });
+    
     if (!studentId || !classKey) {
       return res.status(400).json({ error: 'Missing studentId or classKey in request body' });
     }
 
     const classroom = await joinClassroomByKey(studentId, classKey.toUpperCase());
+    console.log('✅ Student joined classroom:', classroom.id);
     res.status(200).json({ classroom });
   } catch (error) {
-    console.error('Error in joinClassroom endpoint:', error);
-    res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+    console.error('❌ Error in joinClassroom endpoint:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const stack = error instanceof Error ? error.stack : 'No stack';
+    console.error('Error stack:', stack);
+    res.status(500).json({ error: errorMessage, stack });
   }
 });
 
