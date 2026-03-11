@@ -1,12 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { getPropositions, PropositionData, getRandomProposition } from '../services/propositionService';
-import './Auth.css';
 import { Link } from 'react-router-dom';
+import { getPropositions, PropositionData, getRandomProposition } from '../services/propositionService';
+import { useAuth } from '../contexts/AuthContext';
+import { Question } from '../types';
+import { QuestionPage } from './QuestionPage';
+import './Auth.css';
 
 export const PracticePage: React.FC = () => {
   const [propositions, setPropositions] = useState<PropositionData[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<PropositionData | null>(null);
+  const { user } = useAuth();
+
+  // Use real user ID if available so teacher dashboards can track submissions
+  const studentId = user?.uid || `student-${Math.random().toString(36).slice(2, 10)}`;
 
   useEffect(() => {
     const load = async () => {
@@ -57,14 +64,26 @@ export const PracticePage: React.FC = () => {
 
           {selected && (
             <div>
-              <h3>Practice</h3>
-              <p><strong>Question:</strong> {selected.questionText}</p>
-              <p><strong>Expected answer:</strong> {selected.expectedAnswer}</p>
-
-              <div className="practice-actions">
-                <button onClick={() => setSelected(null)} className="btn btn-outline">Back to list</button>
-                <button onClick={() => { alert('Start practice flow (not implemented yet)'); }} className="btn btn-primary">Start Practice</button>
+              <div className="teacher-actions" style={{ marginBottom: 16 }}>
+                <button onClick={() => setSelected(null)} className="btn btn-outline">
+                  Back to list
+                </button>
               </div>
+
+              {/* Reuse QuestionPage to run full practice/analysis flow */}
+              <QuestionPage
+                question={{
+                  id: selected.id || 'prop-' + Math.random().toString(36).slice(2, 10),
+                  questionText: selected.questionText,
+                  difficulty: selected.difficulty,
+                  subject: selected.category,
+                  referenceAnswer: selected.expectedAnswer,
+                  scoringGuideline: 'Use rubric and expected answer to evaluate reasoning.',
+                  createdAt: new Date(),
+                } as Question}
+                studentId={studentId}
+                proposition={selected}
+              />
             </div>
           )}
         </div>

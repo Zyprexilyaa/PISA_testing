@@ -1,5 +1,7 @@
-import { getFirestore, collection, doc, getDoc, getDocs, addDoc, query, where, updateDoc, arrayUnion } from 'firebase/firestore';
+import axios from 'axios';
+import { getFirestore, collection, doc, getDoc, getDocs, addDoc, query, where } from 'firebase/firestore';
 import app from '../services/firebase';
+import { FUNCTIONS_URL } from './api';
 /**
  * Generate a unique classroom key (6-character alphanumeric)
  */
@@ -66,29 +68,14 @@ export async function getTeacherClassrooms(teacherId) {
  */
 export async function joinClassroom(studentId, classKey) {
     try {
-        const db = getFirestore(app);
-        const q = query(collection(db, 'classrooms'), where('classKey', '==', classKey));
-        const querySnapshot = await getDocs(q);
-        if (querySnapshot.empty) {
-            throw new Error('Classroom not found. Please check the class key.');
-        }
-        const classroomDoc = querySnapshot.docs[0];
-        const classroomData = classroomDoc.data();
-        // Check if student is already in the classroom
-        if (classroomData.students.includes(studentId)) {
-            throw new Error('You are already a member of this classroom.');
-        }
-        // Add student to classroom
-        await updateDoc(doc(db, 'classrooms', classroomDoc.id), {
-            students: arrayUnion(studentId),
-        });
-        const classroom = {
-            id: classroomDoc.id,
-            ...classroomData,
-            createdAt: classroomData.createdAt.toDate(),
+        // Use server endpoint to join classroom to avoid Firestore rule query issues
+        const resp = await axios.post(`${FUNCTIONS_URL}/joinClassroom`, { studentId, classKey });
+        const classroom = resp.data.classroom;
+        return {
+            id: classroom.id,
+            ...classroom,
+            createdAt: classroom.createdAt ? new Date(classroom.createdAt._seconds * 1000) : new Date(),
         };
-        console.log('✅ Joined classroom:', classroom);
-        return classroom;
     }
     catch (error) {
         console.error('Error joining classroom:', error);
