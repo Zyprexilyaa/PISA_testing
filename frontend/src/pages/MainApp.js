@@ -1,6 +1,6 @@
 import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { HomePage } from './HomePage';
 import { QuestionPage } from './QuestionPage';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -21,6 +21,7 @@ export const MainApp = () => {
     const { user, userRole, logout } = useAuth();
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState('home');
+    const { classroomId } = useParams();
     const [studentId] = useState('student-' + Math.random().toString(36).substr(2, 9));
     const [proposition, setProposition] = useState(null);
     const [isLoadingProposition, setIsLoadingProposition] = useState(false);
@@ -46,6 +47,12 @@ export const MainApp = () => {
         };
         initializeAndLoadProposition();
     }, []); // Run only once on mount
+    // If the route includes a classroomId, switch to dashboard view
+    useEffect(() => {
+        if (classroomId) {
+            setCurrentPage('dashboard');
+        }
+    }, [classroomId]);
     // NEW: Load proposition when page changes to question or language changes
     useEffect(() => {
         const loadProposition = async () => {
