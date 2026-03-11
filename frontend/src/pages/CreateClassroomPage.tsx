@@ -128,7 +128,7 @@ export const CreateClassroomPage: React.FC = () => {
                   </div>
                   <div className="classroom-actions">
                     <button
-                      onClick={() => navigate(`/classroom/${classroom.id}`)}
+                      onClick={() => navigate(`/teacher-dashboard/${classroom.id}`)}
                       className="btn btn-secondary"
                     >
                       📊 View Details
