@@ -59,15 +59,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Auth state changed:', currentUser?.email || 'No user');
       setUser(currentUser);
       if (currentUser) {
-        await fetchUserRole(currentUser.uid);
+        // Fetch user document to check both role AND setupNeeded status
+        try {
+          const userDocRef = doc(db, 'users', currentUser.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            // Check if setup is needed
+            if (userData.setupNeeded === true) {
+              setNeedsProfileSetup(true);
+              setUserRole(null);
+            } else {
+              // Setup complete, fetch the role
+              const role = userData.role as UserRole;
+              setUserRole(role);
+              setNeedsProfileSetup(false);
+            }
+          } else {
+            setUserRole(null);
+            setNeedsProfileSetup(false);
+          }
+        } catch (error) {
+          console.error('Error checking user setup status:', error);
+          setUserRole(null);
+        }
       } else {
         setUserRole(null);
+        setNeedsProfileSetup(false);
       }
       setLoading(false);
     });
 
     return unsubscribe;
-  }, [auth]);
+  }, [auth, db]);
 
   const loginWithEmail = async (email: string, password: string) => {
     try {
