@@ -224,6 +224,39 @@ export async function getPropositions(language: string = 'th'): Promise<any[]> {
 }
 
 /**
+ * Join a classroom by classKey (server-side)
+ */
+export async function joinClassroomByKey(studentId: string, classKey: string): Promise<any> {
+  try {
+    const q = await db.collection('classrooms').where('classKey', '==', classKey).get();
+    if (q.empty) {
+      throw new Error('Classroom not found');
+    }
+
+    const classroomDoc = q.docs[0];
+    const classroomData = classroomDoc.data();
+
+    // If student already present
+    const students: string[] = classroomData.students || [];
+    if (students.includes(studentId)) {
+      return { id: classroomDoc.id, ...classroomData };
+    }
+
+    // Add student to students array
+    await classroomDoc.ref.update({ students: admin.firestore.FieldValue.arrayUnion(studentId) });
+
+    // Optionally create /members subdoc
+    await classroomDoc.ref.collection('members').doc(studentId).set({ joinedAt: admin.firestore.FieldValue.serverTimestamp(), studentId }, { merge: true });
+
+    const updated = await classroomDoc.ref.get();
+    return { id: updated.id, ...updated.data() };
+  } catch (error) {
+    console.error('Error in joinClassroomByKey:', error);
+    throw error;
+  }
+}
+
+/**
  * Get user's answer history
  */
 export async function getUserAnswerHistory(userId: string, limit: number = 10): Promise<any[]> {

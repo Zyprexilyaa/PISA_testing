@@ -8,6 +8,7 @@ import { analyzeStudentAnswer, generateMockAnalysis } from './analyzeAnswer';
 import { transcribeAudioFile } from './transcribeAudio';
 import { TranscriptionResponse } from './types';
 import { saveProposition, getPropositions, getUserAnswerHistory } from './database';
+import { joinClassroomByKey } from './database';
 
 const app = express();
 
@@ -147,6 +148,26 @@ app.get('/propositions', async (req: Request, res: Response) => {
     res.status(500).json({
       error: error instanceof Error ? error.message : 'Unknown error',
     });
+  }
+});
+
+/**
+ * Endpoint: POST /joinClassroom
+ * Body: { studentId, classKey }
+ * Server-side join to avoid client rule conflicts
+ */
+app.post('/joinClassroom', async (req: Request, res: Response) => {
+  try {
+    const { studentId, classKey } = req.body;
+    if (!studentId || !classKey) {
+      return res.status(400).json({ error: 'Missing studentId or classKey in request body' });
+    }
+
+    const classroom = await joinClassroomByKey(studentId, classKey.toUpperCase());
+    res.status(200).json({ classroom });
+  } catch (error) {
+    console.error('Error in joinClassroom endpoint:', error);
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 
