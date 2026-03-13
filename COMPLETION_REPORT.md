@@ -2,7 +2,7 @@
 
 ## What Has Been Built
 
-Your PISA Thinking Skills Web Application is now **complete and ready for development**!
+Your PISA Insight Web Application is now **complete and ready for development**!
 
 ---
 
@@ -521,7 +521,7 @@ Continuous Improvement
 
 ---
 
-**🎓 THE PISA THINKING SKILLS APPLICATION IS READY TO BUILD! 🚀**
+**🎓 THE PISA INSIGHT APPLICATION IS READY TO BUILD! 🚀**
 
 Start here: [START_HERE.md](START_HERE.md)
 

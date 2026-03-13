@@ -1,4 +1,4 @@
-# PISA Thinking Skills Web Application - Complete Setup Guide
+# PISA Insight Web Application - Complete Setup Guide
 
 A web application that evaluates Thai students' analytical thinking skills using PISA-style questions with voice input and AI-powered analysis.
 

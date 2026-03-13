@@ -1,4 +1,4 @@
-# PISA Thinking Skills — Project Documentation
+# PISA Insight — Project Documentation
 
 **Last updated:** 2026-03-11
 
@@ -6,7 +6,7 @@
 
 **Project summary**
 
-- Name: PISA Thinking Skills (PISA app)
+- Name: PISA Insight (PISA app)
 - Purpose: Web application for creating and practicing critical thinking test-style questions (propositions), managing classrooms, and tracking student progress. Teachers can create classrooms and propositions; students can join classrooms, practice propositions and submit answers.
 
 ---

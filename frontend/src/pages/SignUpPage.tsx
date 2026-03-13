@@ -137,24 +137,32 @@ export const SignUpPage: React.FC = () => {
 
             {error && <div className="error-alert">{error}</div>}
 
-            <button
-              type="submit"
-              disabled={isSubmitting || loading || !email || !password || !confirmPassword}
-              className="btn btn-primary btn-full"
-            >
-              {isSubmitting ? '🔄 Creating account...' : '📧 Sign Up with Email'}
-            </button>
+            <div className="login-methods">
+              <div className="method-container">
+                <img src="/assets/email-logo.png" alt="Email" className="method-logo" />
+                <button
+                  type="submit"
+                  disabled={isSubmitting || loading || !email || !password || !confirmPassword}
+                  className="btn btn-primary btn-full"
+                >
+                  {isSubmitting ? '🔄 Creating account...' : 'Sign Up with Email'}
+                </button>
+              </div>
+
+              <div className="divider">or</div>
+
+              <div className="method-container">
+                <img src="/assets/google-logo.png" alt="Google" className="method-logo" />
+                <button
+                  onClick={handleGoogleSignUpClick}
+                  disabled={isSubmitting || loading}
+                  className="btn btn-google btn-full"
+                >
+                  {isSubmitting ? '🔄 Signing up...' : 'Sign Up with Google'}
+                </button>
+              </div>
+            </div>
           </form>
-
-          <div className="divider">or</div>
-
-          <button
-            onClick={handleGoogleSignUpClick}
-            disabled={isSubmitting || loading}
-            className="btn btn-google btn-full"
-          >
-            {isSubmitting ? '🔄 Signing up...' : '🔗 Sign Up with Google'}
-          </button>
 
           <p className="auth-footer">
             Already have an account?{' '}

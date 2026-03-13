@@ -1,6 +1,6 @@
 # Database Schema Documentation
 
-This document describes the Firestore database structure for the PISA Thinking Skills application.
+This document describes the Firestore database structure for the PISA Insight application.
 
 ## Collections
 

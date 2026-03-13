@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the API endpoints for the PISA Thinking Skills Backend.
+This document describes the API endpoints for the PISA Insight Backend.
 
 ## Base URL
 
@@ -142,7 +142,7 @@ Checks if the API is running and accessible.
 ```json
 {
   "status": "ok",
-  "message": "PISA Thinking Skills Backend is running"
+  "message": "PISA Insight Backend is running"
 }
 ```
 

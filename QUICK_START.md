@@ -82,7 +82,7 @@ After starting both frontend and backend:
 
 ### Check Frontend
 ```
-✅ See "🧠 PISA Thinking Skills" title
+✅ See "🧠 PISA Insight" title
 ✅ No console errors (F12 to open DevTools)
 ✅ Can navigate between pages
 ```

@@ -1,2 +1,2 @@
-// Types for the PISA Thinking Skills Application
+// Types for the PISA Insight Application
 export {};

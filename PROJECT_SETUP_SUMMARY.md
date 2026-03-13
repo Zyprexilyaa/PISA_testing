@@ -2,7 +2,7 @@
 
 ## ✅ Completed
 
-Your PISA Thinking Skills web application has been fully scaffolded with the following:
+Your PISA Insight web application has been fully scaffolded with the following:
 
 ### Frontend (React + TypeScript)
 - ✅ **Project Structure**: Well-organized folders for components, pages, services, and types
@@ -349,6 +349,6 @@ This project demonstrates:
 **Status**: Ready for Development
 **Version**: 1.0.0
 
-🎉 **Your PISA Thinking Skills application is ready to build!** 🎉
+🎉 **Your PISA Insight application is ready to build!** 🎉
 
 Start with `GETTING_STARTED.md` to proceed with setup.

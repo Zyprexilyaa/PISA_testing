@@ -1,4 +1,4 @@
-# 🎉 PISA Thinking Skills Web App - Project Complete!
+# 🎉 PISA Insight Web App - Project Complete!
 
 ## Welcome! 👋
 
@@ -513,7 +513,7 @@ The code is production-quality, well-documented, and follows best practices.
 
 ---
 
-**Welcome to the PISA Thinking Skills Project! 🎓**
+**Welcome to the PISA Insight Project! 🎓**
 
 **Start with**: [README.md](README.md) → [GETTING_STARTED.md](GETTING_STARTED.md)
 

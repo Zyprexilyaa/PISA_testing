@@ -158,7 +158,7 @@ export const MainApp: React.FC = () => {
       </main>
 
       <footer className="app-footer">
-        <p>© 2024 PISA Thinking Skills Analyzer | AI-Powered Learning</p>
+        <p>© 2024 PISA Insight Analyzer | AI-Powered Learning</p>
       </footer>
     </div>
   );
