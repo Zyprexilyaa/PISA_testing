@@ -87,6 +87,19 @@ export const MainApp: React.FC = () => {
     loadProposition();
   }, [currentPage, language]);
 
+  // Map loaded proposition into a Question so UI shows the actual problem
+  const activeQuestion: Question = proposition
+    ? {
+        id: proposition.id || 'prop-' + Math.random().toString(36).slice(2, 10),
+        questionText: proposition.questionText,
+        difficulty: proposition.difficulty,
+        subject: proposition.category,
+        referenceAnswer: proposition.expectedAnswer,
+        scoringGuideline: sampleQuestion.scoringGuideline,
+        createdAt: new Date(),
+      }
+    : sampleQuestion;
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -162,7 +175,7 @@ export const MainApp: React.FC = () => {
             </div>
           ) : proposition ? (
             <QuestionPage 
-              question={sampleQuestion} 
+              question={activeQuestion}
               studentId={studentId}
               proposition={proposition}
             />
