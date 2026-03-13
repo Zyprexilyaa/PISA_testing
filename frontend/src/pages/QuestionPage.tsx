@@ -11,6 +11,7 @@ interface QuestionPageProps {
   question: Question;
   studentId: string;
   proposition?: PropositionData; // NEW: Optional proposition with criteria
+  onAnalysisComplete?: (result: AnalysisResult) => void; // NEW: Callback for analysis
 }
 
 type InputMethod = 'voice' | 'text';
@@ -19,6 +20,7 @@ export const QuestionPage: React.FC<QuestionPageProps> = ({
   question,
   studentId,
   proposition, // NEW: destructure proposition
+  onAnalysisComplete, // NEW: destructure callback
 }) => {
   const { t, language } = useLanguage();
   const [inputMethod, setInputMethod] = useState<InputMethod>('voice');
@@ -79,6 +81,9 @@ export const QuestionPage: React.FC<QuestionPageProps> = ({
       }, audioBlob || undefined);
 
       setAnalysisResult(result);
+      if (onAnalysisComplete) {
+        onAnalysisComplete(result);
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : t('unknownError');
       

@@ -6,6 +6,7 @@ import { cleanupAudioUrl } from '../services/storage';
 import { analyzeStudentAnswer, transcribeAudio } from '../services/api';
 import { useLanguage } from '../contexts/LanguageContext';
 export const QuestionPage = ({ question, studentId, proposition, // NEW: destructure proposition
+onAnalysisComplete, // NEW: destructure callback
  }) => {
     const { t, language } = useLanguage();
     const [inputMethod, setInputMethod] = useState('voice');
@@ -62,6 +63,9 @@ export const QuestionPage = ({ question, studentId, proposition, // NEW: destruc
                 language: language, // NEW: pass language
             }, audioBlob || undefined);
             setAnalysisResult(result);
+            if (onAnalysisComplete) {
+                onAnalysisComplete(result);
+            }
         }
         catch (err) {
             const errorMessage = err instanceof Error ? err.message : t('unknownError');

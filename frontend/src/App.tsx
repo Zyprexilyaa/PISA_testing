@@ -15,6 +15,9 @@ import { TeacherLoginPage } from './pages/TeacherLoginPage';
 import { TeacherAddPropositionPage } from './pages/TeacherAddPropositionPage';
 import { TeacherPropositionListPage } from './pages/TeacherPropositionListPage';
 import { PracticePage } from './pages/PracticePage';
+import { ClassroomContestPage } from './pages/ClassroomContestPage';
+import { ClassroomProblemPage } from './pages/ClassroomProblemPage';
+import { ClassroomAssignPage } from './pages/ClassroomAssignPage';
 
 function App() {
   return (
@@ -52,9 +55,21 @@ function App() {
               </ProtectedRoute>
             } />
             
+            {/* Student classroom contest view */}
             <Route path="/classroom/:classroomId" element={
-              <ProtectedRoute>
-                <MainApp />
+              <ProtectedRoute allowedRoles={['student']}>
+                <ClassroomContestPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/classroom/:classroomId/problem/:propositionId" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <ClassroomProblemPage />
+              </ProtectedRoute>
+            } />
+            {/* Teacher assignment for a classroom */}
+            <Route path="/classroom/:classroomId/assign" element={
+              <ProtectedRoute allowedRoles={['teacher']}>
+                <ClassroomAssignPage />
               </ProtectedRoute>
             } />
             

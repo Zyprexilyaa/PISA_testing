@@ -10,6 +10,8 @@ export interface Classroom {
   classKey: string; // Unique join code
   createdAt: Date;
   students: string[]; // Array of student user IDs
+  // Assigned propositions for contest-style practice
+  assignedPropositionIds?: string[];
   // Optional denormalized fields for UI
   teacherName?: string;
   joinedAt?: Date;
@@ -181,6 +183,24 @@ export async function getClassroomById(classroomId: string): Promise<Classroom |
   } catch (error) {
     console.error('Error getting classroom:', error);
     return null;
+  }
+}
+
+/**
+ * Update the list of assigned propositions for a classroom
+ */
+export async function updateClassroomAssignments(
+  classroomId: string,
+  assignedPropositionIds: string[]
+): Promise<void> {
+  try {
+    const db = getFirestore(app);
+    const ref = doc(db, 'classrooms', classroomId);
+    await updateDoc(ref, { assignedPropositionIds });
+    console.log('✅ Updated assigned propositions for classroom', classroomId, assignedPropositionIds);
+  } catch (error) {
+    console.error('Error updating classroom assignments:', error);
+    throw error;
   }
 }
 

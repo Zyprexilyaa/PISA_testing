@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getFirestore, collection, doc, getDoc, getDocs, addDoc, query, where } from 'firebase/firestore';
+import { getFirestore, collection, doc, getDoc, getDocs, addDoc, query, where, updateDoc } from 'firebase/firestore';
 import app from '../services/firebase';
 import { FUNCTIONS_URL } from './api';
 /**
@@ -143,6 +143,21 @@ export async function getClassroomById(classroomId) {
     catch (error) {
         console.error('Error getting classroom:', error);
         return null;
+    }
+}
+/**
+ * Update the list of assigned propositions for a classroom
+ */
+export async function updateClassroomAssignments(classroomId, assignedPropositionIds) {
+    try {
+        const db = getFirestore(app);
+        const ref = doc(db, 'classrooms', classroomId);
+        await updateDoc(ref, { assignedPropositionIds });
+        console.log('✅ Updated assigned propositions for classroom', classroomId, assignedPropositionIds);
+    }
+    catch (error) {
+        console.error('Error updating classroom assignments:', error);
+        throw error;
     }
 }
 /**

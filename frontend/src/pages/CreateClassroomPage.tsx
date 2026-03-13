@@ -133,6 +133,13 @@ export const CreateClassroomPage: React.FC = () => {
                     >
                       📊 View Details
                     </button>
+                    <button
+                      onClick={() => navigate(`/classroom/${classroom.id}/assign`)}
+                      className="btn btn-primary"
+                      style={{ marginLeft: '0.5rem' }}
+                    >
+                      📝 Assign Problems
+                    </button>
                   </div>
                 </div>
               ))}
