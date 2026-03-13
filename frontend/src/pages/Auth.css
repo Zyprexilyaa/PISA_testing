@@ -35,9 +35,30 @@
 }
 
 .logo-img {
-  max-width: 200px;
+  max-width: 300px;
   height: auto;
-  max-height: 100px;
+  max-height: 150px;
+  object-fit: contain;
+}
+
+.login-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.method-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.method-logo {
+  max-width: 120px;
+  height: auto;
+  max-height: 50px;
   object-fit: contain;
 }
 

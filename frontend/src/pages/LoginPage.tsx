@@ -87,24 +87,32 @@ export const LoginPage: React.FC = () => {
 
             {error && <div className="error-alert">{error}</div>}
 
-            <button
-              type="submit"
-              disabled={isSubmitting || loading || !email || !password}
-              className="btn btn-primary btn-full"
-            >
-              {isSubmitting ? '🔄 Logging in...' : '📧 Sign In with Email'}
-            </button>
+            <div className="login-methods">
+              <div className="method-container">
+                <img src="/assets/email-logo.png" alt="Email" className="method-logo" />
+                <button
+                  type="submit"
+                  disabled={isSubmitting || loading || !email || !password}
+                  className="btn btn-primary btn-full"
+                >
+                  {isSubmitting ? '🔄 Logging in...' : 'Sign In with Email'}
+                </button>
+              </div>
+
+              <div className="divider">or</div>
+
+              <div className="method-container">
+                <img src="/assets/google-logo.png" alt="Google" className="method-logo" />
+                <button
+                  onClick={handleGoogleLogin}
+                  disabled={isSubmitting || loading}
+                  className="btn btn-google btn-full"
+                >
+                  {isSubmitting ? '🔄 Signing in...' : 'Sign In with Google'}
+                </button>
+              </div>
+            </div>
           </form>
-
-          <div className="divider">or</div>
-
-          <button
-            onClick={handleGoogleLogin}
-            disabled={isSubmitting || loading}
-            className="btn btn-google btn-full"
-          >
-            {isSubmitting ? '🔄 Signing in...' : '🔗 Sign In with Google'}
-          </button>
 
           <p className="auth-footer">
             Don't have an account?{' '}
