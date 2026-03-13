@@ -57,17 +57,24 @@ export const MainApp = () => {
     useEffect(() => {
         const loadProposition = async () => {
             if (currentPage === 'question') {
+                console.log('🔄 Starting proposition load...');
                 setIsLoadingProposition(true);
                 try {
                     const prop = await getRandomProposition(language);
+                    console.log('✅ Proposition loaded in useEffect:', prop);
                     setProposition(prop);
                 }
                 catch (error) {
-                    console.error('Error loading proposition:', error);
+                    console.error('❌ Error loading proposition:', error);
+                    setProposition(null); // Ensure we don't stay in loading state
                 }
                 finally {
+                    console.log('🔄 Setting loading to false');
                     setIsLoadingProposition(false);
                 }
+            }
+            else {
+                console.log('📝 Not loading proposition, currentPage is:', currentPage);
             }
         };
         loadProposition();
