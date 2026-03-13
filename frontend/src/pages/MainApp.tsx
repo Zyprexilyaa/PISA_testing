@@ -149,11 +149,26 @@ export const MainApp: React.FC = () => {
       <main className="app-main">
         {currentPage === 'home' && <HomePage />}
         {currentPage === 'question' && (
-          <QuestionPage 
-            question={sampleQuestion} 
-            studentId={studentId}
-            proposition={proposition || undefined} // NEW: pass proposition
-          />
+          isLoadingProposition ? (
+            <div className="loading-container">
+              <div className="loading-spinner"></div>
+              <p>กำลังโหลดคำถาม...</p>
+            </div>
+          ) : proposition ? (
+            <QuestionPage 
+              question={sampleQuestion} 
+              studentId={studentId}
+              proposition={proposition}
+            />
+          ) : (
+            <div className="error-container">
+              <h2>ไม่สามารถโหลดคำถามได้</h2>
+              <p>กรุณาลองอีกครั้งหรือติดต่อผู้ดูแลระบบ</p>
+              <button onClick={() => setCurrentPage('home')} className="btn btn-primary">
+                กลับสู่หน้าหลัก
+              </button>
+            </div>
+          )
         )}
       </main>
 

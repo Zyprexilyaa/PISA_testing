@@ -89,26 +89,30 @@ export const LoginPage: React.FC = () => {
 
             <div className="login-methods">
               <div className="method-container">
-                <img src="/assets/email-logo.png" alt="Email" className="method-logo" />
                 <button
                   type="submit"
                   disabled={isSubmitting || loading || !email || !password}
-                  className="btn btn-primary btn-full"
+                  className="btn btn-primary btn-full btn-email"
                 >
-                  {isSubmitting ? '🔄 Logging in...' : 'Sign In with Email'}
+                  <span className="btn-icon">📧</span>
+                  <span className="btn-text">
+                    {isSubmitting ? '🔄 Logging in...' : 'Sign In with Email'}
+                  </span>
                 </button>
               </div>
 
               <div className="divider">or</div>
 
               <div className="method-container">
-                <img src="/assets/google-logo.png" alt="Google" className="method-logo" />
                 <button
                   onClick={handleGoogleLogin}
                   disabled={isSubmitting || loading}
-                  className="btn btn-google btn-full"
+                  className="btn btn-google btn-full btn-google-styled"
                 >
-                  {isSubmitting ? '🔄 Signing in...' : 'Sign In with Google'}
+                  <span className="btn-icon">oogle</span>
+                  <span className="btn-text">
+                    {isSubmitting ? '🔄 Signing in...' : 'Sign In with Google'}
+                  </span>
                 </button>
               </div>
             </div>
