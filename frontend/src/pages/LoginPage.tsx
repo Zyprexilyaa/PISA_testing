@@ -53,7 +53,9 @@ export const LoginPage: React.FC = () => {
     <div className="auth-page">
       <div className="auth-container">
         <div className="auth-card">
-          <h1 className="auth-title">🧠 PISA Thinking Skills</h1>
+          <div className="auth-logo">
+            <img src="/assets/pisa-logo.png" alt="PISA Insight Logo" className="logo-img" />
+          </div>
           <h2 className="auth-subtitle">{t('practice')}</h2>
 
           <form onSubmit={handleEmailLogin} className="auth-form">

@@ -28,6 +28,19 @@
   animation: slideUp 0.3s ease-out;
 }
 
+.auth-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.logo-img {
+  max-width: 200px;
+  height: auto;
+  max-height: 100px;
+  object-fit: contain;
+}
+
 /* Page card variant for wider content */
 .page-card {
   background: linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);

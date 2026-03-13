@@ -94,7 +94,9 @@ export const MainApp: React.FC = () => {
     <div className="app">
       <header className="app-header">
         <div className="header-content">
-          <h1 className="app-title">🧠 PISA Thinking Skills</h1>
+          <div className="app-logo">
+            <img src="/assets/pisa-logo.png" alt="PISA Insight Logo" className="header-logo-img" />
+          </div>
           <nav className="navigation">
             <button
               className={`nav-link ${currentPage === 'home' ? 'active' : ''}`}

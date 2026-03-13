@@ -23,6 +23,20 @@
   align-items: center;
 }
 
+.app-logo {
+  display: flex;
+  align-items: center;
+  margin-right: 2rem;
+}
+
+.header-logo-img {
+  max-width: 150px;
+  height: auto;
+  max-height: 60px;
+  object-fit: contain;
+  filter: brightness(1.1);
+}
+
 .app-title {
   font-size: 1.8rem;
   font-weight: 700;
