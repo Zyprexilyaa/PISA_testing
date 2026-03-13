@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import { HomePage } from './HomePage';
 import { QuestionPage } from './QuestionPage';
 import { Question } from '../types';
@@ -25,12 +25,15 @@ export const MainApp: React.FC = () => {
   const { language, setLanguage } = useLanguage();
   const { user, userRole, logout } = useAuth();
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState<PageType>('home');
-  const { classroomId } = useParams();
+  const { '*': subpath } = useParams();
+  
   const [studentId] = useState('student-' + Math.random().toString(36).substr(2, 9));
   const [proposition, setProposition] = useState<PropositionData | null>(null);
   const [isLoadingProposition, setIsLoadingProposition] = useState(false);
   const [initialized, setInitialized] = useState(false);
+
+  // Determine current page based on subpath
+  const currentPage = subpath === 'practice' ? 'question' : 'home';
 
   // NEW: Initialize propositions on first mount
   useEffect(() => {
@@ -55,14 +58,7 @@ export const MainApp: React.FC = () => {
     initializeAndLoadProposition();
   }, []); // Run only once on mount
 
-  // If the route includes a classroomId, switch to dashboard view
-  useEffect(() => {
-    if (classroomId) {
-      setCurrentPage('dashboard');
-    }
-  }, [classroomId]);
-
-  // NEW: Load proposition when page changes to question or language changes
+  // NEW: Load proposition when page changes to practice or language changes
   useEffect(() => {
     const loadProposition = async () => {
       if (currentPage === 'question') {
@@ -74,13 +70,10 @@ export const MainApp: React.FC = () => {
           setProposition(prop);
         } catch (error) {
           console.error('❌ Error loading proposition:', error);
-          setProposition(null); // Ensure we don't stay in loading state
+          setProposition(null);
         } finally {
-          console.log('🔄 Setting loading to false');
           setIsLoadingProposition(false);
         }
-      } else {
-        console.log('📝 Not loading proposition, currentPage is:', currentPage);
       }
     };
 
@@ -110,16 +103,17 @@ export const MainApp: React.FC = () => {
   };
 
   return (
-    <div className="app">
+    <div className="app theme-blue">
       <header className="app-header">
         <div className="header-content">
-          <div className="app-logo">
+          <div className="app-logo" onClick={() => navigate('/home')} style={{ cursor: 'pointer' }}>
             <img src="/assets/pisa-logo.png" alt="PISA Insight Logo" className="header-logo-img" />
+            <span className="app-title">PISA Insight</span>
           </div>
           <nav className="navigation">
             <button
               className={`nav-link ${currentPage === 'home' ? 'active' : ''}`}
-              onClick={() => setCurrentPage('home')}
+              onClick={() => navigate('/home')}
             >
               {language === 'th' ? 'หน้าแรก' : 'Home'}
             </button>
@@ -135,7 +129,7 @@ export const MainApp: React.FC = () => {
               <>
                 <button
                   className={`nav-link ${currentPage === 'question' ? 'active' : ''}`}
-                  onClick={() => setCurrentPage('question')}
+                  onClick={() => navigate('/home/practice')}
                 >
                   {language === 'th' ? 'ฝึกฝน' : 'Practice'}
                 </button>
@@ -166,29 +160,31 @@ export const MainApp: React.FC = () => {
       </header>
 
       <main className="app-main">
-        {currentPage === 'home' && <HomePage />}
-        {currentPage === 'question' && (
-          isLoadingProposition ? (
-            <div className="loading-container">
-              <div className="loading-spinner"></div>
-              <p>กำลังโหลดคำถาม...</p>
-            </div>
-          ) : proposition ? (
-            <QuestionPage 
-              question={activeQuestion}
-              studentId={studentId}
-              proposition={proposition}
-            />
-          ) : (
-            <div className="error-container">
-              <h2>ไม่สามารถโหลดคำถามได้</h2>
-              <p>กรุณาลองอีกครั้งหรือติดต่อผู้ดูแลระบบ</p>
-              <button onClick={() => setCurrentPage('home')} className="btn btn-primary">
-                กลับสู่หน้าหลัก
-              </button>
-            </div>
-          )
-        )}
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/practice" element={
+            isLoadingProposition ? (
+              <div className="loading-container">
+                <div className="loading-spinner"></div>
+                <p>{language === 'th' ? 'กำลังโหลดคำถาม...' : 'Loading question...'}</p>
+              </div>
+            ) : proposition ? (
+              <QuestionPage 
+                question={activeQuestion}
+                studentId={studentId}
+                proposition={proposition}
+              />
+            ) : (
+              <div className="error-container">
+                <h2>{language === 'th' ? 'ไม่สามารถโหลดคำถามได้' : 'Cannot load question'}</h2>
+                <p>{language === 'th' ? 'กรุณาลองอีกครั้งหรือติดต่อผู้ดูแลระบบ' : 'Please try again or contact administrator'}</p>
+                <button onClick={() => navigate('/home')} className="btn btn-primary">
+                  {language === 'th' ? 'กลับสู่หน้าหลัก' : 'Back to Home'}
+                </button>
+              </div>
+            )
+          } />
+        </Routes>
       </main>
 
       <footer className="app-footer">

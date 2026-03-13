@@ -27,7 +27,7 @@ export const SignUpPage = () => {
                 throw new Error('Passwords do not match');
             }
             await signUpWithEmail(email, password, role);
-            navigate('/');
+            navigate('/home');
         }
         catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Sign up failed';

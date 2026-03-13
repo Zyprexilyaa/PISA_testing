@@ -19,6 +19,8 @@ import { ClassroomContestPage } from './pages/ClassroomContestPage';
 import { ClassroomProblemPage } from './pages/ClassroomProblemPage';
 import { ClassroomAssignPage } from './pages/ClassroomAssignPage';
 
+import { LandingPage } from './pages/LandingPage';
+
 function App() {
   return (
     <Router>
@@ -26,6 +28,7 @@ function App() {
         <AuthProvider>
           <Routes>
             {/* Public Routes */}
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/teacher-login" element={<TeacherLoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
@@ -101,7 +104,7 @@ function App() {
             
             {/* Main App Route */}
             <Route
-              path="/*"
+              path="/home/*"
               element={
                 <ProtectedRoute>
                   <MainApp />

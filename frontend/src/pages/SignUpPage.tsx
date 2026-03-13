@@ -33,7 +33,7 @@ export const SignUpPage: React.FC = () => {
       }
 
       await signUpWithEmail(email, password, role);
-      navigate('/');
+      navigate('/home');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Sign up failed';
       setError(errorMessage);

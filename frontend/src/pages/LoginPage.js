@@ -21,7 +21,7 @@ export const LoginPage = () => {
                 throw new Error('Please fill in all fields');
             }
             await loginWithEmail(email, password);
-            navigate('/');
+            navigate('/home');
         }
         catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Login failed';
@@ -36,7 +36,7 @@ export const LoginPage = () => {
         setIsSubmitting(true);
         try {
             await loginWithGoogle();
-            navigate('/');
+            navigate('/home');
         }
         catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Google login failed';

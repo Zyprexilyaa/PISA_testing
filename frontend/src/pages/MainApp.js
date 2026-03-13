@@ -1,6 +1,6 @@
-import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "react/jsx-runtime";
+import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import { HomePage } from './HomePage';
 import { QuestionPage } from './QuestionPage';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -20,12 +20,13 @@ export const MainApp = () => {
     const { language, setLanguage } = useLanguage();
     const { user, userRole, logout } = useAuth();
     const navigate = useNavigate();
-    const [currentPage, setCurrentPage] = useState('home');
-    const { classroomId } = useParams();
+    const { '*': subpath } = useParams();
     const [studentId] = useState('student-' + Math.random().toString(36).substr(2, 9));
     const [proposition, setProposition] = useState(null);
     const [isLoadingProposition, setIsLoadingProposition] = useState(false);
     const [initialized, setInitialized] = useState(false);
+    // Determine current page based on subpath
+    const currentPage = subpath === 'practice' ? 'question' : 'home';
     // NEW: Initialize propositions on first mount
     useEffect(() => {
         const initializeAndLoadProposition = async () => {
@@ -47,13 +48,7 @@ export const MainApp = () => {
         };
         initializeAndLoadProposition();
     }, []); // Run only once on mount
-    // If the route includes a classroomId, switch to dashboard view
-    useEffect(() => {
-        if (classroomId) {
-            setCurrentPage('dashboard');
-        }
-    }, [classroomId]);
-    // NEW: Load proposition when page changes to question or language changes
+    // NEW: Load proposition when page changes to practice or language changes
     useEffect(() => {
         const loadProposition = async () => {
             if (currentPage === 'question') {
@@ -66,15 +61,11 @@ export const MainApp = () => {
                 }
                 catch (error) {
                     console.error('❌ Error loading proposition:', error);
-                    setProposition(null); // Ensure we don't stay in loading state
+                    setProposition(null);
                 }
                 finally {
-                    console.log('🔄 Setting loading to false');
                     setIsLoadingProposition(false);
                 }
-            }
-            else {
-                console.log('📝 Not loading proposition, currentPage is:', currentPage);
             }
         };
         loadProposition();
@@ -100,5 +91,5 @@ export const MainApp = () => {
             console.error('Logout error:', error);
         }
     };
-    return (_jsxs("div", { className: "app", children: [_jsx("header", { className: "app-header", children: _jsxs("div", { className: "header-content", children: [_jsx("div", { className: "app-logo", children: _jsx("img", { src: "/assets/pisa-logo.png", alt: "PISA Insight Logo", className: "header-logo-img" }) }), _jsxs("nav", { className: "navigation", children: [_jsx("button", { className: `nav-link ${currentPage === 'home' ? 'active' : ''}`, onClick: () => setCurrentPage('home'), children: language === 'th' ? 'หน้าแรก' : 'Home' }), userRole === 'teacher' ? (_jsx("button", { className: "nav-link", onClick: () => navigate('/create-classroom'), children: language === 'th' ? 'ห้องเรียนของฉัน' : 'My Classrooms' })) : (_jsxs(_Fragment, { children: [_jsx("button", { className: `nav-link ${currentPage === 'question' ? 'active' : ''}`, onClick: () => setCurrentPage('question'), children: language === 'th' ? 'ฝึกฝน' : 'Practice' }), userRole === 'student' && (_jsx("button", { className: "nav-link", onClick: () => navigate('/join-classroom'), children: language === 'th' ? 'เข้าร่วมห้องเรียน' : 'Join Classroom' }))] })), _jsx("button", { className: "nav-link language-toggle", onClick: () => setLanguage(language === 'th' ? 'en' : 'th'), children: language === 'th' ? '🇬🇧 EN' : '🇹🇭 ไทย' }), _jsxs("div", { className: "user-menu", children: [_jsx("span", { className: "user-email", children: user?.email }), _jsx("button", { className: "nav-link logout-btn", onClick: handleLogout, children: language === 'th' ? '🚪 ออกจากระบบ' : '🚪 Logout' })] })] })] }) }), _jsxs("main", { className: "app-main", children: [currentPage === 'home' && _jsx(HomePage, {}), currentPage === 'question' && (isLoadingProposition ? (_jsxs("div", { className: "loading-container", children: [_jsx("div", { className: "loading-spinner" }), _jsx("p", { children: "\u0E01\u0E33\u0E25\u0E31\u0E07\u0E42\u0E2B\u0E25\u0E14\u0E04\u0E33\u0E16\u0E32\u0E21..." })] })) : proposition ? (_jsx(QuestionPage, { question: activeQuestion, studentId: studentId, proposition: proposition })) : (_jsxs("div", { className: "error-container", children: [_jsx("h2", { children: "\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E42\u0E2B\u0E25\u0E14\u0E04\u0E33\u0E16\u0E32\u0E21\u0E44\u0E14\u0E49" }), _jsx("p", { children: "\u0E01\u0E23\u0E38\u0E13\u0E32\u0E25\u0E2D\u0E07\u0E2D\u0E35\u0E01\u0E04\u0E23\u0E31\u0E49\u0E07\u0E2B\u0E23\u0E37\u0E2D\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D\u0E1C\u0E39\u0E49\u0E14\u0E39\u0E41\u0E25\u0E23\u0E30\u0E1A\u0E1A" }), _jsx("button", { onClick: () => setCurrentPage('home'), className: "btn btn-primary", children: "\u0E01\u0E25\u0E31\u0E1A\u0E2A\u0E39\u0E48\u0E2B\u0E19\u0E49\u0E32\u0E2B\u0E25\u0E31\u0E01" })] })))] }), _jsx("footer", { className: "app-footer", children: _jsx("p", { children: "\u00A9 2024 PISA Insight Analyzer | AI-Powered Learning" }) })] }));
+    return (_jsxs("div", { className: "app theme-blue", children: [_jsx("header", { className: "app-header", children: _jsxs("div", { className: "header-content", children: [_jsxs("div", { className: "app-logo", onClick: () => navigate('/home'), style: { cursor: 'pointer' }, children: [_jsx("img", { src: "/assets/pisa-logo.png", alt: "PISA Insight Logo", className: "header-logo-img" }), _jsx("span", { className: "app-title", children: "PISA Insight" })] }), _jsxs("nav", { className: "navigation", children: [_jsx("button", { className: `nav-link ${currentPage === 'home' ? 'active' : ''}`, onClick: () => navigate('/home'), children: language === 'th' ? 'หน้าแรก' : 'Home' }), userRole === 'teacher' ? (_jsx("button", { className: "nav-link", onClick: () => navigate('/create-classroom'), children: language === 'th' ? 'ห้องเรียนของฉัน' : 'My Classrooms' })) : (_jsxs(_Fragment, { children: [_jsx("button", { className: `nav-link ${currentPage === 'question' ? 'active' : ''}`, onClick: () => navigate('/home/practice'), children: language === 'th' ? 'ฝึกฝน' : 'Practice' }), userRole === 'student' && (_jsx("button", { className: "nav-link", onClick: () => navigate('/join-classroom'), children: language === 'th' ? 'เข้าร่วมห้องเรียน' : 'Join Classroom' }))] })), _jsx("button", { className: "nav-link language-toggle", onClick: () => setLanguage(language === 'th' ? 'en' : 'th'), children: language === 'th' ? '🇬🇧 EN' : '🇹🇭 ไทย' }), _jsxs("div", { className: "user-menu", children: [_jsx("span", { className: "user-email", children: user?.email }), _jsx("button", { className: "nav-link logout-btn", onClick: handleLogout, children: language === 'th' ? '🚪 ออกจากระบบ' : '🚪 Logout' })] })] })] }) }), _jsx("main", { className: "app-main", children: _jsxs(Routes, { children: [_jsx(Route, { path: "/", element: _jsx(HomePage, {}) }), _jsx(Route, { path: "/practice", element: isLoadingProposition ? (_jsxs("div", { className: "loading-container", children: [_jsx("div", { className: "loading-spinner" }), _jsx("p", { children: language === 'th' ? 'กำลังโหลดคำถาม...' : 'Loading question...' })] })) : proposition ? (_jsx(QuestionPage, { question: activeQuestion, studentId: studentId, proposition: proposition })) : (_jsxs("div", { className: "error-container", children: [_jsx("h2", { children: language === 'th' ? 'ไม่สามารถโหลดคำถามได้' : 'Cannot load question' }), _jsx("p", { children: language === 'th' ? 'กรุณาลองอีกครั้งหรือติดต่อผู้ดูแลระบบ' : 'Please try again or contact administrator' }), _jsx("button", { onClick: () => navigate('/home'), className: "btn btn-primary", children: language === 'th' ? 'กลับสู่หน้าหลัก' : 'Back to Home' })] })) })] }) }), _jsx("footer", { className: "app-footer", children: _jsx("p", { children: "\u00A9 2024 PISA Insight Analyzer | AI-Powered Learning" }) })] }));
 };

@@ -25,7 +25,7 @@ export const LoginPage: React.FC = () => {
       }
 
       await loginWithEmail(email, password);
-      navigate('/');
+      navigate('/home');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Login failed';
       setError(errorMessage);
@@ -40,7 +40,7 @@ export const LoginPage: React.FC = () => {
 
     try {
       await loginWithGoogle();
-      navigate('/');
+      navigate('/home');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Google login failed';
       setError(errorMessage);

@@ -1,27 +1,27 @@
 :root {
-  /* Modern Color Palette */
-  --primary: #4f46e5;
-  --primary-hover: #4338ca;
-  --secondary: #6366f1;
-  --accent: #f59e0b;
+  /* Vibrant Blue Modern Color Palette */
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --secondary: #3b82f6;
+  --accent: #60a5fa;
   --success: #10b981;
   --danger: #ef4444;
   --warning: #f59e0b;
   --info: #3b82f6;
   
   /* Neutral Colors */
-  --bg-main: #f8fafc;
+  --bg-main: #f0f4f8;
   --bg-card: #ffffff;
   --text-main: #1e293b;
-  --text-muted: #64748b;
+  --text-muted: #475569;
   --text-light: #94a3b8;
-  --border: #e2e8f0;
+  --border: #cbd5e1;
   
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  /* Shadows with blue hint */
+  --shadow-sm: 0 1px 2px 0 rgb(37 99 235 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(37 99 235 / 0.1), 0 2px 4px -2px rgb(37 99 235 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(37 99 235 / 0.1), 0 4px 6px -4px rgb(37 99 235 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(37 99 235 / 0.1), 0 8px 10px -6px rgb(37 99 235 / 0.1);
 
   /* Spacing */
   --radius-sm: 0.375rem;
@@ -60,6 +60,33 @@ a, button, input, textarea, select {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
+
+.app.theme-blue .app-header {
+  background: var(--primary);
+  border-bottom: none;
+}
+
+.app.theme-blue .app-title,
+.app.theme-blue .nav-link {
+  color: white;
+}
+
+.app.theme-blue .nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.app.theme-blue .nav-link.active {
+  background: white;
+  color: var(--primary);
+}
+
+.app.theme-blue .user-menu {
+  border-left-color: rgba(255, 255, 255, 0.2);
+}
+
+.app.theme-blue .user-email {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .app-header {
