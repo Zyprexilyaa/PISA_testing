@@ -62,33 +62,6 @@ a, button, input, textarea, select {
   min-height: 100vh;
 }
 
-.app.theme-blue .app-header {
-  background: var(--primary);
-  border-bottom: none;
-}
-
-.app.theme-blue .app-title,
-.app.theme-blue .nav-link {
-  color: white;
-}
-
-.app.theme-blue .nav-link:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.app.theme-blue .nav-link.active {
-  background: white;
-  color: var(--primary);
-}
-
-.app.theme-blue .user-menu {
-  border-left-color: rgba(255, 255, 255, 0.2);
-}
-
-.app.theme-blue .user-email {
-  color: rgba(255, 255, 255, 0.8);
-}
-
 .app-header {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(8px);
@@ -123,8 +96,8 @@ a, button, input, textarea, select {
 }
 
 .app-title {
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-size: 1.25rem;
+  font-weight: 700;
   color: var(--primary);
   letter-spacing: -0.025em;
 }
@@ -178,26 +151,23 @@ a, button, input, textarea, select {
   border: 1px solid transparent;
   gap: 0.5rem;
   white-space: nowrap;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  transform: none !important;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
+  background-color: var(--primary);
   color: white;
-  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-  border: none;
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-success {
@@ -207,22 +177,17 @@ a, button, input, textarea, select {
 
 .btn-success:hover:not(:disabled) {
   filter: brightness(1.1);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 .btn-outline {
   background: white;
-  border: 2px solid var(--border);
+  border-color: var(--border);
   color: var(--text-main);
-  font-weight: 700;
 }
 
 .btn-outline:hover:not(:disabled) {
   background: var(--bg-main);
-  border-color: var(--primary);
-  color: var(--primary);
-  transform: translateY(-2px);
+  border-color: var(--text-light);
 }
 
 .btn-large {

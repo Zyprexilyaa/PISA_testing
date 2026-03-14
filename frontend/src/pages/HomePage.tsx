@@ -1,12 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useLanguage } from '../contexts/LanguageContext';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { userRole } = useAuth();
-  const { language } = useLanguage();
 
   const handlePrimaryAction = () => {
     if (userRole === 'teacher') {
@@ -44,14 +42,12 @@ export const HomePage: React.FC = () => {
             <button 
               className="btn btn-primary btn-large"
               onClick={() => navigate('/home/practice')}
-              style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}
             >
               {language === 'th' ? 'เริ่มฝึกฝนเลย' : 'Start Practice'}
             </button>
             <button 
               className="btn btn-outline btn-large"
               onClick={() => navigate('/join-classroom')}
-              style={{ padding: '1rem 2rem', fontSize: '1.1rem', backgroundColor: 'rgba(255,255,255,0.9)' }}
             >
               {language === 'th' ? 'เข้าร่วมห้องเรียน' : 'Join Classroom'}
             </button>

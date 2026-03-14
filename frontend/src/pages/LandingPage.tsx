@@ -18,7 +18,7 @@ export const LandingPage: React.FC = () => {
             <a href="#features">Features</a>
             <a href="#about">About</a>
             <button className="btn-login-minimal" onClick={() => navigate('/login')}>Log in</button>
-            <button className="btn-get-started-nav" onClick={() => navigate('/signup')}>Start Free</button>
+            <button className="btn-get-started-nav" onClick={() => navigate('/login')}>Start Free</button>
           </div>
         </div>
       </nav>
@@ -35,7 +35,7 @@ export const LandingPage: React.FC = () => {
               Understand. Execute. Deliver results.
             </p>
             <div className="hero-actions animate-slide-up delay-2">
-              <button className="btn-primary-modern" onClick={() => navigate('/signup')}>
+              <button className="btn-primary-modern" onClick={() => navigate('/login')}>
                 Get Started for Free <span className="arrow">→</span>
               </button>
               <button className="btn-outline-modern" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>
@@ -100,7 +100,7 @@ export const LandingPage: React.FC = () => {
         <div className="cta-box">
           <h2>Ready to unlock your potential?</h2>
           <p>Join thousands of students and teachers using PISA Insight today.</p>
-          <button className="btn-white-modern" onClick={() => navigate('/signup')}>
+          <button className="btn-white-modern" onClick={() => navigate('/login')}>
             Start Your Journey Now
           </button>
         </div>

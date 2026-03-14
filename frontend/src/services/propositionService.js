@@ -62,6 +62,30 @@ export async function getRandomProposition(language = 'th') {
  */
 export const SAMPLE_PROPOSITIONS_TH = [
     {
+        questionText: 'จากกราฟระดับน้ำในทะเลสาบชาด (Lake Chad) จงวิเคราะห์ว่าทำไมระดับน้ำถึงมีการเปลี่ยนแปลงอย่างมากในช่วง 11,000 ปีก่อนคริสต์ศักราช และปัจจุบันเกิดอะไรขึ้นกับทะเลสาบนี้?',
+        difficulty: 'hard',
+        category: 'analysis',
+        expectedAnswer: 'ระดับน้ำเปลี่ยนแปลงตามสภาพภูมิอากาศโลก ในอดีตเคยมีระดับน้ำสูงแต่ปัจจุบันลดลงอย่างมากเนื่องจากความแห้งแล้งและการใช้น้ำ',
+        language: 'th',
+        imageUrl: '/assets/propositions/lake-chad/main-1.png',
+        answerType: 'text',
+        relatedLesson: 'การเปลี่ยนแปลงสภาพภูมิอากาศและธรณีวิทยา (Climate Change & Geology)',
+        scoringRubric: {
+            excellent: {
+                points: 3,
+                description: 'วิเคราะห์กราฟได้ถูกต้อง เชื่อมโยงกับยุคน้ำแข็งและการเปลี่ยนแปลงสภาพภูมิอากาศได้ชัดเจน'
+            },
+            good: {
+                points: 2,
+                description: 'อ่านกราฟได้ถูกต้องและอธิบายแนวโน้มได้'
+            },
+            fair: {
+                points: 1,
+                description: 'ตอบได้เพียงว่าน้ำลดลงแต่ไม่อธิบายเหตุผล'
+            }
+        }
+    },
+    {
         questionText: 'ในสถานการณ์ที่อากาศปนเปื้อน หมู่บ้านหนึ่งต้องการลดปริมาณควัน จะมีวิธีใดบ้าง? อธิบายข้อดีและข้อเสีย',
         difficulty: 'medium',
         category: 'critical-thinking',

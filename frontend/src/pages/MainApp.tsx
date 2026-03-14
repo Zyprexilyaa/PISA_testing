@@ -120,7 +120,7 @@ export const MainApp: React.FC = () => {
             {/* Role-based navigation */}
             {userRole === 'teacher' ? (
               <button
-                className={`nav-link ${currentPage === 'home' && subpath?.includes('create-classroom') ? 'active' : ''}`}
+                className="nav-link"
                 onClick={() => navigate('/create-classroom')}
               >
                 {language === 'th' ? 'ห้องเรียนของฉัน' : 'My Classrooms'}
@@ -135,7 +135,7 @@ export const MainApp: React.FC = () => {
                 </button>
                 {userRole === 'student' && (
                   <button
-                    className={`nav-link ${subpath?.includes('join-classroom') ? 'active' : ''}`}
+                    className="nav-link"
                     onClick={() => navigate('/join-classroom')}
                   >
                     {language === 'th' ? 'เข้าร่วมห้องเรียน' : 'Join Classroom'}

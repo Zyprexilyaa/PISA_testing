@@ -75,6 +75,8 @@ export const MainApp = () => {
         ? {
             id: proposition.id || 'prop-' + Math.random().toString(36).slice(2, 10),
             questionText: proposition.questionText,
+            questionImage: proposition.imageUrl, // Map image
+            context: proposition.relatedLesson, // Map related lesson to context
             difficulty: proposition.difficulty,
             subject: proposition.category,
             referenceAnswer: proposition.expectedAnswer,
