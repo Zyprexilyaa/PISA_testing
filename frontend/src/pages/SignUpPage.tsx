@@ -33,6 +33,7 @@ export const SignUpPage: React.FC = () => {
       }
 
       await signUpWithEmail(email, password, role);
+      // Automatically log in and redirect to home after successful signup
       navigate('/home');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Sign up failed';
@@ -48,7 +49,9 @@ export const SignUpPage: React.FC = () => {
 
     try {
       await signUpWithGoogleRole();
-      navigate('/setup-profile');
+      // Google signup usually handles profile setup via a separate flow, 
+      // but let's ensure we try to go home or profile setup correctly
+      navigate('/home'); 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Google sign up failed';
       setError(errorMessage);
