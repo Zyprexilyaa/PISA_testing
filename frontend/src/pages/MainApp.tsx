@@ -150,7 +150,17 @@ export const MainApp: React.FC = () => {
               {language === 'th' ? '🇬🇧 EN' : '🇹🇭 ไทย'}
             </button>
             <div className="user-menu">
-              <span className="user-email">{user?.email}</span>
+              <span className="user-email">
+                {user?.displayName ? (
+                  <>
+                    <span style={{fontWeight: 'bold'}}>{user.displayName}</span>
+                    <br/>
+                    <small style={{opacity: 0.8}}>{user.email}</small>
+                  </>
+                ) : (
+                  user?.email
+                )}
+              </span>
               <button className="nav-link logout-btn" onClick={handleLogout}>
                 {language === 'th' ? '🚪 ออกจากระบบ' : '🚪 Logout'}
               </button>

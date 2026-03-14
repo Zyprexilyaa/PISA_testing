@@ -8,10 +8,18 @@ export const CreateClassroomPage = () => {
     const navigate = useNavigate();
     const { user, userRole } = useAuth();
     const [className, setClassName] = useState('');
+    const [ownerName, setOwnerName] = useState('');
     const [isCreating, setIsCreating] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
     const [existingClassrooms, setExistingClassrooms] = useState([]);
+    // Set owner name when user loads
+    useEffect(() => {
+        if (user) {
+            // Prioritize displayName (username) > email > 'Unknown Teacher'
+            setOwnerName(user.displayName || user.email || 'Unknown Teacher');
+        }
+    }, [user]);
     // Redirect if not teacher
     useEffect(() => {
         if (userRole && userRole !== 'teacher') {
@@ -47,7 +55,10 @@ export const CreateClassroomPage = () => {
         }
         setIsCreating(true);
         try {
-            const classroom = await createClassroom(user.uid, className.trim());
+            // Use the ownerName from state, which comes from AuthContext user object
+            // This ensures we capture the username set during profile setup
+            const finalOwnerName = ownerName || 'Unknown Teacher';
+            const classroom = await createClassroom(user.uid, className.trim(), finalOwnerName);
             setSuccess(`Classroom "${classroom.className}" created! Join code: ${classroom.classKey}`);
             setClassName('');
             // Refresh classroom list

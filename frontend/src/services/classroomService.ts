@@ -13,7 +13,8 @@ export interface Classroom {
   // Assigned propositions for contest-style practice
   assignedPropositionIds?: string[];
   // Optional denormalized fields for UI
-  teacherName?: string;
+  ownerName?: string; // Teacher's display name or email
+  teacherName?: string; // Legacy support
   joinedAt?: Date;
 }
 
@@ -46,7 +47,7 @@ export function generateClassroomKey(): string {
 /**
  * Create a new classroom
  */
-export async function createClassroom(teacherId: string, className: string): Promise<Classroom> {
+export async function createClassroom(teacherId: string, className: string, ownerName: string): Promise<Classroom> {
   try {
     const db = getFirestore(app);
     const classKey = generateClassroomKey();
@@ -57,6 +58,7 @@ export async function createClassroom(teacherId: string, className: string): Pro
       classKey,
       createdAt: new Date(),
       students: [],
+      ownerName, // Save teacher's name
     };
 
     const docRef = await addDoc(collection(db, 'classrooms'), classroomData);
