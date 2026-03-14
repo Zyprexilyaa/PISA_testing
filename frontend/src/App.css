@@ -1,4 +1,4 @@
-/* Main App Styles */
+/* App Layout */
 .app {
   min-height: 100vh;
   display: flex;
@@ -19,41 +19,52 @@
   color: var(--text-muted);
   font-size: 0.875rem;
   font-weight: 500;
+  line-height: 1.2;
 }
 
 .logout-btn {
-  background: #fee2e2;
-  color: var(--danger);
-  border: 1px solid #fecaca;
-  padding: 0.4rem 0.875rem !important;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.5rem 1rem !important;
+  font-weight: 600;
 }
 
 .logout-btn:hover:not(:disabled) {
-  background: #fecaca;
+  background: #fee2e2;
+  color: var(--danger);
+  border-color: #fecaca;
 }
 
-/* Home Page */
+/* Home Page Enhancements */
 .home-page {
-  padding: 4rem 2rem;
+  padding: 6rem 2rem;
   text-align: center;
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
+  animation: fadeIn 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.home-page h2 {
-  font-size: 3rem;
+.home-page h1 {
+  font-size: 4rem;
   font-weight: 800;
   color: var(--text-main);
-  letter-spacing: -0.025em;
+  letter-spacing: -0.04em;
   margin-bottom: 1.5rem;
   line-height: 1.1;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.home-page p {
-  font-size: 1.25rem;
+.home-page .subtitle {
+  font-size: 1.5rem;
   color: var(--text-muted);
   line-height: 1.6;
-  margin-bottom: 2.5rem;
+  margin-bottom: 3.5rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Question & Recording Section */
@@ -377,44 +388,78 @@
 /* Feature Cards on Home Page */
 .features-section {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 2rem;
-  margin: 4rem 0;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2.5rem;
+  margin: 5rem 0;
+  padding: 0 1rem;
 }
 
 .feature-card {
-  padding: 2rem;
+  padding: 3rem 2rem;
   background: white;
   border-radius: var(--radius-xl);
   border: 1px solid var(--border);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--primary);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .feature-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-xl);
+  border-color: transparent;
+}
+
+.feature-card:hover::before {
+  opacity: 1;
 }
 
 .feature-icon {
-  font-size: 2.5rem;
+  font-size: 3rem;
   margin-bottom: 1.5rem;
+  background: var(--bg-main);
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .feature-card h3 {
-  font-size: 1.125rem;
-  font-weight: 700;
-  margin-bottom: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: var(--text-main);
 }
 
 .feature-card p {
-  font-size: 0.875rem;
+  font-size: 1.1rem;
   color: var(--text-muted);
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 /* Hero Section */
 .hero-section {
-  margin-bottom: 4rem;
+  margin-bottom: 5rem;
 }
 
 .hero-section .subtitle {
