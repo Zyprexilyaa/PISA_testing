@@ -49,9 +49,8 @@ export const SignUpPage: React.FC = () => {
 
     try {
       await signUpWithGoogleRole();
-      // Google signup usually handles profile setup via a separate flow, 
-      // but let's ensure we try to go home or profile setup correctly
-      navigate('/home'); 
+      // Google signup requires profile setup for role selection
+      navigate('/setup-profile'); 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Google sign up failed';
       setError(errorMessage);

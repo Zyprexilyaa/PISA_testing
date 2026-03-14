@@ -27,6 +27,7 @@ export const SignUpPage = () => {
                 throw new Error('Passwords do not match');
             }
             await signUpWithEmail(email, password, role);
+            // Automatically log in and redirect to home after successful signup
             navigate('/home');
         }
         catch (err) {
@@ -42,7 +43,9 @@ export const SignUpPage = () => {
         setIsSubmitting(true);
         try {
             await signUpWithGoogleRole();
-            navigate('/setup-profile');
+            // Google signup usually handles profile setup via a separate flow, 
+            // but let's ensure we try to go home or profile setup correctly
+            navigate('/home');
         }
         catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Google sign up failed';
