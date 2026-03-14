@@ -1,10 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { userRole } = useAuth();
+  const { language } = useLanguage();
 
   const handlePrimaryAction = () => {
     if (userRole === 'teacher') {

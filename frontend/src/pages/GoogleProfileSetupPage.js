@@ -13,7 +13,7 @@ export const GoogleProfileSetupPage = () => {
     // Redirect if user doesn't need profile setup or isn't authenticated
     React.useEffect(() => {
         if (!loading && (!user || !needsProfileSetup)) {
-            navigate('/home');
+            navigate('/');
         }
     }, [user, needsProfileSetup, loading, navigate]);
     const handleSubmit = async (e) => {
@@ -31,7 +31,7 @@ export const GoogleProfileSetupPage = () => {
                 throw new Error('Username must be less than 30 characters');
             }
             await completeGoogleProfileSetup(username.trim(), role);
-            navigate('/home');
+            navigate('/');
         }
         catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Profile setup failed';

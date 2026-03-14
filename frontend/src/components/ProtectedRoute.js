@@ -12,8 +12,8 @@ export const ProtectedRoute = ({ children, allowedRoles }) => {
     // Check if user has required role
     if (allowedRoles && allowedRoles.length > 0) {
         if (!userRole || !allowedRoles.includes(userRole)) {
-            // Redirect to home dashboard if user doesn't have the required role
-            return _jsx(Navigate, { to: "/home", replace: true });
+            // Redirect to home if user doesn't have the required role
+            return _jsx(Navigate, { to: "/", replace: true });
         }
     }
     return _jsx(_Fragment, { children: children });

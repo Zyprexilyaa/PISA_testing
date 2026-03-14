@@ -14,6 +14,7 @@ export interface Classroom {
   assignedPropositionIds?: string[];
   // Optional denormalized fields for UI
   teacherName?: string;
+  ownerName?: string;
   joinedAt?: Date;
 }
 
@@ -46,7 +47,11 @@ export function generateClassroomKey(): string {
 /**
  * Create a new classroom
  */
-export async function createClassroom(teacherId: string, className: string): Promise<Classroom> {
+export async function createClassroom(
+  teacherId: string,
+  className: string,
+  teacherName?: string
+): Promise<Classroom> {
   try {
     const db = getFirestore(app);
     const classKey = generateClassroomKey();
@@ -57,6 +62,7 @@ export async function createClassroom(teacherId: string, className: string): Pro
       classKey,
       createdAt: new Date(),
       students: [],
+      ...(teacherName ? { teacherName } : {}),
     };
 
     const docRef = await addDoc(collection(db, 'classrooms'), classroomData);

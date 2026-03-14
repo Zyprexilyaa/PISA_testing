@@ -16,7 +16,7 @@ export function generateClassroomKey() {
 /**
  * Create a new classroom
  */
-export async function createClassroom(teacherId, className, ownerName) {
+export async function createClassroom(teacherId, className, teacherName) {
     try {
         const db = getFirestore(app);
         const classKey = generateClassroomKey();
@@ -26,7 +26,7 @@ export async function createClassroom(teacherId, className, ownerName) {
             classKey,
             createdAt: new Date(),
             students: [],
-            ownerName, // Save teacher's name
+            ...(teacherName ? { teacherName } : {}),
         };
         const docRef = await addDoc(collection(db, 'classrooms'), classroomData);
         const classroom = {

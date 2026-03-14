@@ -83,20 +83,31 @@ export const AuthProvider = ({ children }) => {
             setLoading(false);
         }
     };
-    const signUpWithEmail = async (email, password) => {
+    const signUpWithEmail = async (email, password, role) => {
         try {
             setLoading(true);
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            // Create user document with setupNeeded flag
             const userDocRef = doc(db, 'users', userCredential.user.uid);
-            await setDoc(userDocRef, {
-                email,
-                createdAt: new Date(),
-                setupNeeded: true,
-            });
-            setNeedsProfileSetup(true);
-            setUserRole(null);
-            console.log('Sign up successful, setup needed');
+            if (role) {
+                await setDoc(userDocRef, {
+                    email,
+                    role,
+                    createdAt: new Date(),
+                    setupNeeded: false,
+                });
+                setUserRole(role);
+                setNeedsProfileSetup(false);
+            }
+            else {
+                await setDoc(userDocRef, {
+                    email,
+                    createdAt: new Date(),
+                    setupNeeded: true,
+                });
+                setUserRole(null);
+                setNeedsProfileSetup(true);
+            }
+            console.log('Sign up successful');
         }
         catch (error) {
             console.error('Sign up error:', error);

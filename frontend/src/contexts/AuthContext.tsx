@@ -20,7 +20,7 @@ interface AuthContextType {
   loading: boolean;
   needsProfileSetup: boolean;
   loginWithEmail: (email: string, password: string) => Promise<void>;
-  signUpWithEmail: (email: string, password: string, role: UserRole) => Promise<void>;
+  signUpWithEmail: (email: string, password: string, role?: UserRole) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   signUpWithGoogleRole: () => Promise<void>;
   completeGoogleProfileSetup: (username: string, role: UserRole) => Promise<void>;
@@ -106,21 +106,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUpWithEmail = async (email: string, password: string, role: UserRole) => {
+  const signUpWithEmail = async (email: string, password: string, role?: UserRole) => {
     try {
       setLoading(true);
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
-      // Save user role to Firestore
       const userDocRef = doc(db, 'users', userCredential.user.uid);
-      await setDoc(userDocRef, {
-        email,
-        role,
-        createdAt: new Date(),
-      });
+      if (role) {
+        await setDoc(userDocRef, {
+          email,
+          role,
+          createdAt: new Date(),
+          setupNeeded: false,
+        });
+        setUserRole(role);
+        setNeedsProfileSetup(false);
+      } else {
+        await setDoc(userDocRef, {
+          email,
+          createdAt: new Date(),
+          setupNeeded: true,
+        });
+        setUserRole(null);
+        setNeedsProfileSetup(true);
+      }
       
-      setUserRole(role);
-      console.log('Sign up successful with role:', role);
+      console.log('Sign up successful');
     } catch (error) {
       console.error('Sign up error:', error);
       throw error;

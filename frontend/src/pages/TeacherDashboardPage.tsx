@@ -180,7 +180,7 @@ export const TeacherDashboardPage: React.FC = () => {
           <p>
             📍 Code: <strong>{classroom?.classKey}</strong> 
             <span style={{margin: '0 10px'}}>|</span> 
-            👤 Owner: <strong>{classroom?.ownerName || 'You'}</strong>
+            👤 Owner: <strong>{classroom?.teacherName || classroom?.ownerName || 'You'}</strong>
           </p>
         </div>
 
