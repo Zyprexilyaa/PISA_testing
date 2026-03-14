@@ -72,9 +72,13 @@ service cloud.firestore {
     // Students save submissions, teachers view all submissions in their classrooms
     match /classroomSubmissions/{submissionId} {
       allow create: if isStudent();
+      
+      // Allow reading if:
+      // 1. User is the student who created the submission
+      // 2. User is a teacher AND the submission belongs to a classroom they own
       allow read: if isAuthenticated() && (
-        isStudent() && get(/databases/$(database)/documents/classroomSubmissions/$(submissionId)).data.studentId == request.auth.uid ||
-        isTeacher() && get(/databases/$(database)/documents/classrooms/$(get(/databases/$(database)/documents/classroomSubmissions/$(submissionId)).data.classroomId)).data.teacherId == request.auth.uid
+        (isStudent() && resource.data.studentId == request.auth.uid) ||
+        (isTeacher() && get(/databases/$(database)/documents/classrooms/$(resource.data.classroomId)).data.teacherId == request.auth.uid)
       );
     }
     
