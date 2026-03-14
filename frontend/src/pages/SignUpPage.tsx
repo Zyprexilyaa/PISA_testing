@@ -10,7 +10,6 @@ export const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('student');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -32,9 +31,9 @@ export const SignUpPage: React.FC = () => {
         throw new Error('Passwords do not match');
       }
 
-      await signUpWithEmail(email, password, role);
-      // Automatically log in and redirect to home after successful signup
-      navigate('/home');
+      await signUpWithEmail(email, password);
+      // Redirect to profile setup for username and role selection
+      navigate('/setup-profile');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Sign up failed';
       setError(errorMessage);
@@ -69,34 +68,6 @@ export const SignUpPage: React.FC = () => {
           <h2 className="auth-subtitle">Create Account</h2>
 
           <form onSubmit={handleEmailSignUp} className="auth-form">
-            {/* Beautiful Role Selection */}
-            <div className="form-group">
-              <label>Choose Your Role:</label>
-              <div className="role-selector-container">
-                <div
-                  className={`role-card ${role === 'student' ? 'active' : ''}`}
-                  onClick={() => setRole('student')}
-                  role="button"
-                  tabIndex={0}
-                >
-                  <div className="role-icon">👨‍🎓</div>
-                  <div className="role-title">Student</div>
-                  <div className="role-description">Learn and practice thinking skills</div>
-                </div>
-
-                <div
-                  className={`role-card ${role === 'teacher' ? 'active' : ''}`}
-                  onClick={() => setRole('teacher')}
-                  role="button"
-                  tabIndex={0}
-                >
-                  <div className="role-icon">👩‍🏫</div>
-                  <div className="role-title">Teacher</div>
-                  <div className="role-description">Manage classrooms & track progress</div>
-                </div>
-              </div>
-            </div>
-
             <div className="form-group">
               <label htmlFor="email">Email</label>
               <input

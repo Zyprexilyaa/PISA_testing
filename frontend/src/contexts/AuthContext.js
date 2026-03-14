@@ -83,19 +83,20 @@ export const AuthProvider = ({ children }) => {
             setLoading(false);
         }
     };
-    const signUpWithEmail = async (email, password, role) => {
+    const signUpWithEmail = async (email, password) => {
         try {
             setLoading(true);
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            // Save user role to Firestore
+            // Create user document with setupNeeded flag
             const userDocRef = doc(db, 'users', userCredential.user.uid);
             await setDoc(userDocRef, {
                 email,
-                role,
                 createdAt: new Date(),
+                setupNeeded: true,
             });
-            setUserRole(role);
-            console.log('Sign up successful with role:', role);
+            setNeedsProfileSetup(true);
+            setUserRole(null);
+            console.log('Sign up successful, setup needed');
         }
         catch (error) {
             console.error('Sign up error:', error);
