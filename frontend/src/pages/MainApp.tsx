@@ -172,7 +172,30 @@ export const MainApp: React.FC = () => {
       <main className="app-main">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/home" element={<HomePage />} />
           <Route path="/practice" element={
+            isLoadingProposition ? (
+              <div className="loading-container">
+                <div className="loading-spinner"></div>
+                <p>{language === 'th' ? 'กำลังโหลดคำถาม...' : 'Loading question...'}</p>
+              </div>
+            ) : proposition ? (
+              <QuestionPage 
+                question={activeQuestion}
+                studentId={studentId}
+                proposition={proposition}
+              />
+            ) : (
+              <div className="error-container">
+                <h2>{language === 'th' ? 'ไม่สามารถโหลดคำถามได้' : 'Cannot load question'}</h2>
+                <p>{language === 'th' ? 'กรุณาลองอีกครั้งหรือติดต่อผู้ดูแลระบบ' : 'Please try again or contact administrator'}</p>
+                <button onClick={() => navigate('/home')} className="btn btn-primary">
+                  {language === 'th' ? 'กลับสู่หน้าหลัก' : 'Back to Home'}
+                </button>
+              </div>
+            )
+          } />
+          <Route path="/home/practice" element={
             isLoadingProposition ? (
               <div className="loading-container">
                 <div className="loading-spinner"></div>
@@ -198,7 +221,7 @@ export const MainApp: React.FC = () => {
       </main>
 
       <footer className="app-footer">
-        <p>© 2024 PISA Insight Analyzer | AI-Powered Learning</p>
+        <p>© 2026 PISA Insight Analyzer | AI-Powered Learning</p>
       </footer>
     </div>
   );

@@ -108,7 +108,7 @@ export const LandingPage: React.FC = () => {
 
       <footer className="landing-footer">
         <div className="footer-container">
-          <p>© 2024 PISA Insight Analyzer. All rights reserved.</p>
+          <p>© 2026 PISA Insight Analyzer. All rights reserved.</p>
           <div className="footer-links">
             <a href="#">Privacy</a>
             <a href="#">Terms</a>
