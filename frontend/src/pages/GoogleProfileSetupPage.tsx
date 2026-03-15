@@ -15,7 +15,7 @@ export const GoogleProfileSetupPage: React.FC = () => {
   // Redirect if user doesn't need profile setup or isn't authenticated
   React.useEffect(() => {
     if (!loading && (!user || !needsProfileSetup)) {
-      navigate('/');
+      navigate('/home');
     }
   }, [user, needsProfileSetup, loading, navigate]);
 
@@ -38,7 +38,7 @@ export const GoogleProfileSetupPage: React.FC = () => {
       }
 
       await completeGoogleProfileSetup(username.trim(), role);
-      navigate('/');
+      navigate('/home');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Profile setup failed';
       setError(errorMessage);

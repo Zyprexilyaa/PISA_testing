@@ -7,6 +7,7 @@ import { LoginPage } from './pages/LoginPage';
 import { SignUpPage } from './pages/SignUpPage';
 import { GoogleProfileSetupPage } from './pages/GoogleProfileSetupPage';
 import { MainApp } from './pages/MainApp';
+import { LandingPage } from './pages/LandingPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { CreateClassroomPage } from './pages/CreateClassroomPage';
 import { JoinClassroomPage } from './pages/JoinClassroomPage';
@@ -99,6 +100,9 @@ function App() {
               </ProtectedRoute>
             } />
             
+            {/* Public Landing Page */}
+            <Route path="/" element={<LandingPage />} />
+
             {/* Main App Route */}
             <Route
               path="/*"

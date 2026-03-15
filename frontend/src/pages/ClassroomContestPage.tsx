@@ -117,7 +117,7 @@ export const ClassroomContestPage: React.FC = () => {
         )}
 
         <div className="classroom-footer">
-          <button onClick={() => navigate('/')} className="btn btn-outline">
+          <button onClick={() => navigate('/home')} className="btn btn-outline">
             ← Back to Home
           </button>
         </div>

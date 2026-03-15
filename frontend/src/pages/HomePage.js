@@ -15,7 +15,7 @@ export const HomePage = () => {
         }
         else {
             // Fallback: keep generic experience
-            navigate('/');
+            navigate('/home');
         }
     };
     return (_jsxs("div", { className: "home-page", children: [_jsxs("div", { className: "hero-section", children: [_jsx("h1", { children: "PISA Insight Analyzer" }), _jsx("p", { className: "subtitle", children: language === 'th'

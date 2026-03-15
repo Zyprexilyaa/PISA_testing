@@ -17,7 +17,7 @@ export const TeacherDashboardPage = () => {
     // Redirect if not teacher
     useEffect(() => {
         if (userRole && userRole !== 'teacher') {
-            navigate('/');
+            navigate('/home');
         }
     }, [userRole, navigate]);
     // Load classroom details and setup real-time submissions listener

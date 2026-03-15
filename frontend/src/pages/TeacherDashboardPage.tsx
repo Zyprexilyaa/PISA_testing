@@ -23,7 +23,7 @@ export const TeacherDashboardPage: React.FC = () => {
   // Redirect if not teacher
   useEffect(() => {
     if (userRole && userRole !== 'teacher') {
-      navigate('/');
+      navigate('/home');
     }
   }, [userRole, navigate]);
 

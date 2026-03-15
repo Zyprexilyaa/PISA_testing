@@ -25,7 +25,7 @@ export const CreateClassroomPage: React.FC = () => {
   // Redirect if not teacher
   useEffect(() => {
     if (userRole && userRole !== 'teacher') {
-      navigate('/');
+      navigate('/home');
     }
   }, [userRole, navigate]);
 
@@ -160,7 +160,7 @@ export const CreateClassroomPage: React.FC = () => {
         </div>
 
         <div className="classroom-footer">
-          <button onClick={() => navigate('/')} className="btn btn-outline">
+          <button onClick={() => navigate('/home')} className="btn btn-outline">
             ← Back to Home
           </button>
         </div>

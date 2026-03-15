@@ -15,7 +15,7 @@ export const HomePage: React.FC = () => {
       navigate('/join-classroom');
     } else {
       // Fallback: keep generic experience
-      navigate('/');
+      navigate('/home');
     }
   };
 

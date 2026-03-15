@@ -119,12 +119,20 @@ export const MainApp: React.FC = () => {
             </button>
             {/* Role-based navigation */}
             {userRole === 'teacher' ? (
-              <button
-                className="nav-link"
-                onClick={() => navigate('/create-classroom')}
-              >
-                {language === 'th' ? 'ห้องเรียนของฉัน' : 'My Classrooms'}
-              </button>
+              <>
+                <button
+                  className="nav-link"
+                  onClick={() => navigate('/create-classroom')}
+                >
+                  {language === 'th' ? 'ห้องเรียนของฉัน' : 'My Classrooms'}
+                </button>
+                <button
+                  className="nav-link"
+                  onClick={() => navigate('/teacher/propositions')}
+                >
+                  {language === 'th' ? 'ข้อเสนอปัญหา' : 'Propositions'}
+                </button>
+              </>
             ) : (
               <>
                 <button
