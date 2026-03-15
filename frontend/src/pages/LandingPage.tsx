@@ -19,6 +19,8 @@ export const LandingPage: React.FC = () => {
             <a href="#about">About</a>
             <button className="btn-login-minimal" onClick={() => navigate('/login')}>Log in</button>
             <button className="btn-get-started-nav" onClick={() => navigate('/login')}>Start Free</button>
+            <button className="btn-teacher" onClick={() => navigate('/teacher-login')}>Teacher Login</button>
+            <button className="btn-teacher-outline" onClick={() => navigate('/teacher/propositions/new')}>Add Proposition</button>
           </div>
         </div>
       </nav>
