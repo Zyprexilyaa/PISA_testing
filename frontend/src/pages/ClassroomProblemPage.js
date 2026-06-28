@@ -4,8 +4,20 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { QuestionPage } from './QuestionPage';
 import { getClassroomById, saveClassroomSubmission } from '../services/classroomService';
+import { getExamQuestionById } from '../services/examQuestionService';
 import { getPropositions } from '../services/propositionService';
 import './Classroom.css';
+function mapExamQuestionToProposition(question) {
+    return {
+        id: question.id,
+        questionText: question.questionText,
+        difficulty: question.difficulty,
+        category: question.category,
+        expectedAnswer: question.expectedAnswer,
+        scoringRubric: question.scoringRubric,
+        language: question.language,
+    };
+}
 export const ClassroomProblemPage = () => {
     const { classroomId, propositionId } = useParams();
     const navigate = useNavigate();
@@ -30,7 +42,13 @@ export const ClassroomProblemPage = () => {
                 if (cls)
                     setClassroomName(cls.className);
                 const all = await getPropositions('th');
-                const found = all.find(p => p.id === propositionId) || null;
+                let found = all.find(p => p.id === propositionId) || null;
+                if (!found) {
+                    const examQuestion = await getExamQuestionById(propositionId);
+                    if (examQuestion) {
+                        found = mapExamQuestionToProposition(examQuestion);
+                    }
+                }
                 setProposition(found);
                 if (!found) {
                     setError('Problem not found or not assigned.');

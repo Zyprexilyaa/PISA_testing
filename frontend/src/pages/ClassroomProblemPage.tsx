@@ -4,8 +4,21 @@ import { useAuth } from '../contexts/AuthContext';
 import { Question } from '../types';
 import { QuestionPage } from './QuestionPage';
 import { getClassroomById, Classroom, ClassroomSubmission, saveClassroomSubmission } from '../services/classroomService';
+import { getExamQuestionById, ExamQuestionData } from '../services/examQuestionService';
 import { getPropositions, PropositionData } from '../services/propositionService';
 import './Classroom.css';
+
+function mapExamQuestionToProposition(question: ExamQuestionData): PropositionData {
+  return {
+    id: question.id,
+    questionText: question.questionText,
+    difficulty: question.difficulty,
+    category: question.category,
+    expectedAnswer: question.expectedAnswer,
+    scoringRubric: question.scoringRubric,
+    language: question.language,
+  };
+}
 
 export const ClassroomProblemPage: React.FC = () => {
   const { classroomId, propositionId } = useParams<{ classroomId: string; propositionId: string }>();
@@ -35,7 +48,15 @@ export const ClassroomProblemPage: React.FC = () => {
         if (cls) setClassroomName(cls.className);
 
         const all = await getPropositions('th');
-        const found = all.find(p => p.id === propositionId) || null;
+        let found = all.find(p => p.id === propositionId) || null;
+
+        if (!found) {
+          const examQuestion = await getExamQuestionById(propositionId);
+          if (examQuestion) {
+            found = mapExamQuestionToProposition(examQuestion);
+          }
+        }
+
         setProposition(found);
         if (!found) {
           setError('Problem not found or not assigned.');

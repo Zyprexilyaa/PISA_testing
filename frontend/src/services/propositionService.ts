@@ -1,4 +1,5 @@
 import { FUNCTIONS_URL } from './api';
+import { getExamQuestions, ExamQuestionData } from './examQuestionService';
 
 export interface ScoringRubric {
   excellent?: { points: number; description: string };
@@ -16,6 +17,34 @@ export interface PropositionData {
   expectedAnswer: string;
   scoringRubric: ScoringRubric;
   language?: 'th' | 'en';
+}
+
+function mapExamQuestionToProposition(question: ExamQuestionData): PropositionData {
+  return {
+    id: question.id,
+    questionText: question.questionText,
+    difficulty: question.difficulty,
+    category: question.category,
+    expectedAnswer: question.expectedAnswer,
+    scoringRubric: question.scoringRubric,
+    language: question.language,
+  };
+}
+
+function dedupePropositions(propositions: PropositionData[]): PropositionData[] {
+  const seen = new Map<string, PropositionData>();
+  for (const prop of propositions) {
+    const key = prop.id || prop.questionText;
+    if (!seen.has(key)) {
+      seen.set(key, prop);
+    }
+  }
+  return Array.from(seen.values());
+}
+
+async function fallbackToPdfPropositions(language: string): Promise<PropositionData[]> {
+  const pdfQuestions = await getExamQuestions(language);
+  return dedupePropositions(pdfQuestions.map(mapExamQuestionToProposition));
 }
 
 /**
@@ -57,11 +86,18 @@ export async function getPropositions(language: string = 'th'): Promise<Proposit
     }
 
     const data = await response.json();
-    console.log(`✅ Found ${data.count} propositions for ${language}`);
-    return data.propositions || [];
+    const propositions = Array.isArray(data.propositions) ? data.propositions : [];
+
+    if (propositions.length === 0) {
+      console.warn('No propositions returned from API; falling back to PDF exam questions.');
+      return await fallbackToPdfPropositions(language);
+    }
+
+    console.log(`✅ Found ${propositions.length} propositions for ${language}`);
+    return dedupePropositions(propositions as PropositionData[]);
   } catch (error) {
     console.error('Error getting propositions:', error);
-    return [];
+    return await fallbackToPdfPropositions(language);
   }
 }
 

@@ -3,8 +3,20 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getClassroomById } from '../services/classroomService';
+import { getExamQuestionById } from '../services/examQuestionService';
 import { getPropositions } from '../services/propositionService';
 import './Classroom.css';
+function mapExamQuestionToProposition(question) {
+    return {
+        id: question.id,
+        questionText: question.questionText,
+        difficulty: question.difficulty,
+        category: question.category,
+        expectedAnswer: question.expectedAnswer,
+        scoringRubric: question.scoringRubric,
+        language: question.language,
+    };
+}
 export const ClassroomContestPage = () => {
     const { classroomId } = useParams();
     const navigate = useNavigate();
@@ -30,8 +42,15 @@ export const ClassroomContestPage = () => {
                     return;
                 }
                 const all = await getPropositions('th');
-                const filtered = all.filter(p => p.id && cls.assignedPropositionIds.includes(p.id));
-                setAssignedProps(filtered);
+                const matched = all.filter(p => p.id && cls.assignedPropositionIds.includes(p.id));
+                const missingIds = cls.assignedPropositionIds.filter(id => !matched.some(p => p.id === id));
+                for (const id of missingIds) {
+                    const examQuestion = await getExamQuestionById(id);
+                    if (examQuestion) {
+                        matched.push(mapExamQuestionToProposition(examQuestion));
+                    }
+                }
+                setAssignedProps(matched);
             }
             catch (err) {
                 console.error('Error loading classroom contest data', err);

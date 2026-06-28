@@ -1,4 +1,30 @@
 import { FUNCTIONS_URL } from './api';
+import { getExamQuestions } from './examQuestionService';
+function mapExamQuestionToProposition(question) {
+    return {
+        id: question.id,
+        questionText: question.questionText,
+        difficulty: question.difficulty,
+        category: question.category,
+        expectedAnswer: question.expectedAnswer,
+        scoringRubric: question.scoringRubric,
+        language: question.language,
+    };
+}
+function dedupePropositions(propositions) {
+    const seen = new Map();
+    for (const prop of propositions) {
+        const key = prop.id || prop.questionText;
+        if (!seen.has(key)) {
+            seen.set(key, prop);
+        }
+    }
+    return Array.from(seen.values());
+}
+async function fallbackToPdfPropositions(language) {
+    const pdfQuestions = await getExamQuestions(language);
+    return dedupePropositions(pdfQuestions.map(mapExamQuestionToProposition));
+}
 /**
  * Save a new proposition to the database
  */
@@ -31,12 +57,17 @@ export async function getPropositions(language = 'th') {
             throw new Error(`Failed to get propositions: ${response.statusText}`);
         }
         const data = await response.json();
-        console.log(`✅ Found ${data.count} propositions for ${language}`);
-        return data.propositions || [];
+        const propositions = Array.isArray(data.propositions) ? data.propositions : [];
+        if (propositions.length === 0) {
+            console.warn('No propositions returned from API; falling back to PDF exam questions.');
+            return await fallbackToPdfPropositions(language);
+        }
+        console.log(`✅ Found ${propositions.length} propositions for ${language}`);
+        return dedupePropositions(propositions);
     }
     catch (error) {
         console.error('Error getting propositions:', error);
-        return [];
+        return await fallbackToPdfPropositions(language);
     }
 }
 /**
