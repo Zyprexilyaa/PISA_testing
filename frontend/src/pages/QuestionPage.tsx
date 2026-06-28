@@ -126,6 +126,14 @@ export const QuestionPage: React.FC<QuestionPageProps> = ({
               />
             )}
             <p className="question-text">{question.questionText}</p>
+            {proposition?.sourceType === 'pdf' && !question.questionImage && (
+              <div className="question-context" style={{ backgroundColor: '#fff4e5', borderColor: '#f59e0b' }}>
+                <strong>Note:</strong>
+                <p>
+                  This PISA question may depend on an image or diagram in the PDF. Please open the source PDF to view the full content and answer accurately.
+                </p>
+              </div>
+            )}
             {proposition?.sourceType === 'pdf' && proposition?.pdfUrl && (
               <div className="question-context">
                 <strong>PDF Question Source:</strong>

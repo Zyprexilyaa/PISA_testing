@@ -14,6 +14,8 @@ export interface ExamQuestionData {
   pdfUrl?: string;
   pdfFileName?: string;
   questionNumber?: string;
+  questionImage?: string;
+  subject?: string;
   createdBy?: string;
 }
 

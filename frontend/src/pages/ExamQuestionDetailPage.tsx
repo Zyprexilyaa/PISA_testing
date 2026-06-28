@@ -75,6 +75,7 @@ export const ExamQuestionDetailPage: React.FC = () => {
     referenceAnswer: question.expectedAnswer,
     scoringGuideline: 'Use rubric and reference answer to evaluate reasoning.',
     createdAt: new Date(),
+    questionImage: question.questionImage,
     context: question.pdfUrl ? `PDF source: ${question.pdfFileName}` : undefined,
   };
 

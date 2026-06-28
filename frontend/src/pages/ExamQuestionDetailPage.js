@@ -53,6 +53,7 @@ export const ExamQuestionDetailPage = () => {
         referenceAnswer: question.expectedAnswer,
         scoringGuideline: 'Use rubric and reference answer to evaluate reasoning.',
         createdAt: new Date(),
+        questionImage: question.questionImage,
         context: question.pdfUrl ? `PDF source: ${question.pdfFileName}` : undefined,
     };
     return (_jsx("div", { className: "auth-page", children: _jsx("div", { className: "page-container", children: _jsxs("div", { className: "page-card", children: [_jsx("div", { className: "teacher-actions", style: { marginBottom: 16 }, children: _jsx("button", { onClick: () => navigate('/practice'), className: "btn btn-outline", children: "\u2190 Back to Practice" }) }), _jsx(QuestionPage, { question: questionProp, studentId: studentId, proposition: question })] }) }) }));

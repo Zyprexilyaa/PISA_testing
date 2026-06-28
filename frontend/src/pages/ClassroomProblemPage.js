@@ -81,6 +81,8 @@ export const ClassroomProblemPage = () => {
         referenceAnswer: proposition.expectedAnswer,
         scoringGuideline: 'Use rubric and expected answer to evaluate reasoning.',
         createdAt: new Date(),
+        questionImage: proposition.questionImage,
+        context: proposition.pdfUrl ? `PDF source: ${proposition.pdfFileName}` : undefined,
     };
     const handleAnalysisComplete = async (result) => {
         if (!proposition || !user)

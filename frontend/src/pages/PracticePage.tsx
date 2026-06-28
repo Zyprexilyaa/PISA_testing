@@ -10,6 +10,7 @@ export const PracticePage: React.FC = () => {
   const [questions, setQuestions] = useState<ExamQuestionData[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<ExamQuestionData | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const { user } = useAuth();
 
   // Use real user ID if available so teacher dashboards can track submissions
@@ -25,10 +26,15 @@ export const PracticePage: React.FC = () => {
     load();
   }, []);
 
+  const filteredQuestions = selectedCategory === 'all'
+    ? questions
+    : questions.filter((q) => q.category === selectedCategory);
+
   const pickRandom = async () => {
     setLoading(true);
-    const p = await getRandomExamQuestion('th');
-    setSelected(p);
+    const items = filteredQuestions.length > 0 ? filteredQuestions : questions;
+    const randomIndex = Math.floor(Math.random() * items.length);
+    setSelected(items[randomIndex] || null);
     setLoading(false);
   };
 
@@ -48,8 +54,26 @@ export const PracticePage: React.FC = () => {
           {!loading && !selected && (
             <div>
               <h3>Available Exam Questions</h3>
+              <div style={{ marginBottom: 16, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+                <label style={{ marginBottom: 0 }}>
+                  Subject / Category:
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    style={{ marginLeft: 8, minWidth: 180 }}
+                  >
+                    <option value="all">All subjects</option>
+                    {Array.from(new Set(questions.map((q) => q.category))).map((category) => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
+                  </select>
+                </label>
+                <span style={{ color: '#555' }}>
+                  Showing {filteredQuestions.length} of {questions.length} questions
+                </span>
+              </div>
               <div className="proposition-list">
-                {questions.map((q, idx) => (
+                {filteredQuestions.map((q, idx) => (
                   <div key={idx} className="proposition-item">
                     <h4>{q.questionText.substring(0,120)}{q.questionText.length>120? '...':''}</h4>
                     <div className="proposition-meta">
@@ -84,6 +108,7 @@ export const PracticePage: React.FC = () => {
                   referenceAnswer: selected.expectedAnswer,
                   scoringGuideline: 'Use rubric and expected answer to evaluate reasoning.',
                   createdAt: new Date(),
+                  questionImage: selected.questionImage,
                   context: selected.sourceType === 'pdf' && selected.pdfFileName ? `PDF source: ${selected.pdfFileName}` : undefined,
                 } as Question}
                 studentId={studentId}

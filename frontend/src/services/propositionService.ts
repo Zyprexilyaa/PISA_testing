@@ -17,6 +17,9 @@ export interface PropositionData {
   expectedAnswer: string;
   scoringRubric: ScoringRubric;
   language?: 'th' | 'en';
+  questionImage?: string;
+  pdfUrl?: string;
+  pdfFileName?: string;
 }
 
 function mapExamQuestionToProposition(question: ExamQuestionData): PropositionData {
@@ -28,6 +31,9 @@ function mapExamQuestionToProposition(question: ExamQuestionData): PropositionDa
     expectedAnswer: question.expectedAnswer,
     scoringRubric: question.scoringRubric,
     language: question.language,
+    questionImage: question.questionImage,
+    pdfUrl: question.pdfUrl,
+    pdfFileName: question.pdfFileName,
   };
 }
 

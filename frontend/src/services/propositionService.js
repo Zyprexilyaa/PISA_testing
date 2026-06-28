@@ -9,6 +9,9 @@ function mapExamQuestionToProposition(question) {
         expectedAnswer: question.expectedAnswer,
         scoringRubric: question.scoringRubric,
         language: question.language,
+        questionImage: question.questionImage,
+        pdfUrl: question.pdfUrl,
+        pdfFileName: question.pdfFileName,
     };
 }
 function dedupePropositions(propositions) {
