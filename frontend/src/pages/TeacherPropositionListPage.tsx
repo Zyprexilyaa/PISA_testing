@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getExamQuestions, deleteAllExamQuestions, ExamQuestionData } from '../services/examQuestionService';
+import { getExamQuestions, deleteAllExamQuestions, importPdfExamQuestions, ExamQuestionData } from '../services/examQuestionService';
 import { Link } from 'react-router-dom';
 import './Auth.css';
 
@@ -22,8 +22,23 @@ export const TeacherPropositionListPage: React.FC = () => {
       return;
     }
 
+    setLoading(true);
     await deleteAllExamQuestions();
     setQuestions([]);
+    setLoading(false);
+  };
+
+  const handleResetToPdfBank = async () => {
+    if (!window.confirm('Reset the bank to only the 3 PDF exam questions?')) {
+      return;
+    }
+
+    setLoading(true);
+    await deleteAllExamQuestions();
+    await importPdfExamQuestions('th');
+    const items = await getExamQuestions('th');
+    setQuestions(items);
+    setLoading(false);
   };
 
   return (
@@ -35,6 +50,7 @@ export const TeacherPropositionListPage: React.FC = () => {
           <div className="teacher-actions">
             <Link to="/teacher/propositions/new" className="btn btn-primary">Add New Exam Question</Link>
             <button onClick={handleClearQuestions} className="btn btn-outline">Clear Question Bank</button>
+            <button onClick={handleResetToPdfBank} className="btn btn-outline">Reset to 3 PDF Questions</button>
           </div>
 
           {loading && <div>Loading...</div>}

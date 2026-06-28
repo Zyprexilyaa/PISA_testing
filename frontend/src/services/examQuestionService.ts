@@ -16,32 +16,54 @@ export interface ExamQuestionData {
   createdBy?: string;
 }
 
-export const SAMPLE_EXAM_QUESTIONS: ExamQuestionData[] = [
+export const PDF_EXAM_QUESTION_TEMPLATES: ExamQuestionData[] = [
   {
-    title: 'PISA Climate Response',
-    questionText: 'นักเรียนในเมืองหนึ่งกำลังเผชิญกับปัญหาควันพิษอย่างรุนแรง คุณจะเสนอวิธีแก้ปัญหาอย่างไร และอธิบายข้อดีข้อเสียของแต่ละวิธี?',
-    difficulty: 'medium',
-    category: 'critical-thinking',
-    expectedAnswer: 'ควรเสนอวิธีแก้ปัญหาหลายแบบ เช่น ลดการใช้รถยนต์ การใช้พลังงานสะอาด การปลูกต้นไม้ และควบคุมโรงงาน พร้อมวิเคราะห์ข้อดีข้อเสียของแต่ละวิธี',
+    title: 'PISA Old Test 1',
+    questionText: 'Open the attached PISA PDF and answer the exam question inside.',
+    difficulty: 'hard',
+    category: 'comprehension',
+    expectedAnswer: 'Answer the question described in the attached PDF.',
     language: 'th',
     scoringRubric: {
-      excellent: { points: 3, description: 'ระบุวิธีเด่นหลายวิธีและวิเคราะห์ข้อดีข้อเสียเชิงลึก' },
-      good: { points: 2, description: 'ระบุวิธีหลักและวิเคราะห์ได้บางส่วน' },
+      excellent: { points: 3, description: 'Clear and complete answer to the PISA PDF question.' },
+      good: { points: 2, description: 'Mostly correct answer with some reasoning.' },
+      fair: { points: 1, description: 'Partial answer or limited reasoning.' },
     },
-    sourceType: 'text',
+    sourceType: 'pdf',
+    pdfUrl: '/pdfs/pisa-old-test-1.pdf',
+    pdfFileName: 'pisa-old-test-1.pdf',
   },
   {
-    title: 'Education and Development',
-    questionText: 'ทำไมการศึกษาจึงมีความสำคัญต่อการพัฒนาประเทศ? ให้เหตุผลอย่างน้อย 3 ข้อ.',
-    difficulty: 'medium',
-    category: 'analysis',
-    expectedAnswer: 'การศึกษาช่วยพัฒนาทักษะแรงงาน ส่งเสริมความคิดสร้างสรรค์ และช่วยเพิ่มคุณภาพชีวิตของประชาชน',
+    title: 'PISA Old Test 2',
+    questionText: 'Open the attached PISA PDF and answer the exam question inside.',
+    difficulty: 'hard',
+    category: 'comprehension',
+    expectedAnswer: 'Answer the question described in the attached PDF.',
     language: 'th',
     scoringRubric: {
-      excellent: { points: 3, description: 'ให้เหตุผลครบถ้วนและชัดเจน' },
-      good: { points: 2, description: 'ให้เหตุผลอย่างน้อย 3 ข้อ' },
+      excellent: { points: 3, description: 'Clear and complete answer to the PISA PDF question.' },
+      good: { points: 2, description: 'Mostly correct answer with some reasoning.' },
+      fair: { points: 1, description: 'Partial answer or limited reasoning.' },
     },
-    sourceType: 'text',
+    sourceType: 'pdf',
+    pdfUrl: '/pdfs/pisa-old-test-2.pdf',
+    pdfFileName: 'pisa-old-test-2.pdf',
+  },
+  {
+    title: 'PISA Old Test 3',
+    questionText: 'Open the attached PISA PDF and answer the exam question inside.',
+    difficulty: 'hard',
+    category: 'comprehension',
+    expectedAnswer: 'Answer the question described in the attached PDF.',
+    language: 'th',
+    scoringRubric: {
+      excellent: { points: 3, description: 'Clear and complete answer to the PISA PDF question.' },
+      good: { points: 2, description: 'Mostly correct answer with some reasoning.' },
+      fair: { points: 1, description: 'Partial answer or limited reasoning.' },
+    },
+    sourceType: 'pdf',
+    pdfUrl: '/pdfs/pisa-old-test-3.pdf',
+    pdfFileName: 'pisa-old-test-3.pdf',
   },
 ];
 
@@ -61,7 +83,11 @@ export async function saveExamQuestion(question: ExamQuestionData): Promise<stri
 
 export async function getExamQuestions(language: string = 'th'): Promise<ExamQuestionData[]> {
   try {
-    const q = query(collection(db, 'examQuestions'), where('language', '==', language));
+    const q = query(
+      collection(db, 'examQuestions'),
+      where('language', '==', language),
+      where('sourceType', '==', 'pdf')
+    );
     const snapshot = await getDocs(q);
 
     const questions = snapshot.docs.map(doc => ({
@@ -70,13 +96,13 @@ export async function getExamQuestions(language: string = 'th'): Promise<ExamQue
     })) as ExamQuestionData[];
 
     if (questions.length === 0) {
-      return SAMPLE_EXAM_QUESTIONS.filter(item => item.language === language);
+      return PDF_EXAM_QUESTION_TEMPLATES.filter(item => item.language === language);
     }
 
     return questions;
   } catch (error) {
     console.error('Error getting exam questions:', error);
-    return SAMPLE_EXAM_QUESTIONS.filter(item => item.language === language);
+    return PDF_EXAM_QUESTION_TEMPLATES.filter(item => item.language === language);
   }
 }
 
@@ -101,6 +127,38 @@ export async function deleteAllExamQuestions(): Promise<void> {
     await Promise.all(snapshot.docs.map(doc => deleteDoc(doc.ref)));
   } catch (error) {
     console.error('Error clearing exam questions:', error);
+    throw error;
+  }
+}
+
+export async function importPdfExamQuestions(language: 'th' | 'en' = 'th'): Promise<string[]> {
+  try {
+    const existing = await getDocs(
+      query(
+        collection(db, 'examQuestions'),
+        where('language', '==', language),
+        where('sourceType', '==', 'pdf')
+      )
+    );
+
+    if (!existing.empty) {
+      return existing.docs.map(doc => doc.id);
+    }
+
+    const templates = PDF_EXAM_QUESTION_TEMPLATES.filter(item => item.language === language);
+    const ids = await Promise.all(
+      templates.map(async (template) => {
+        const docRef = await addDoc(collection(db, 'examQuestions'), {
+          ...template,
+          createdAt: serverTimestamp(),
+        });
+        return docRef.id;
+      })
+    );
+
+    return ids;
+  } catch (error) {
+    console.error('Error importing PDF exam questions:', error);
     throw error;
   }
 }
