@@ -1,43 +1,56 @@
 import React, { useEffect, useState } from 'react';
-import { getPropositions, PropositionData } from '../services/propositionService';
+import { getExamQuestions, deleteAllExamQuestions, ExamQuestionData } from '../services/examQuestionService';
 import { Link } from 'react-router-dom';
 import './Auth.css';
 
 export const TeacherPropositionListPage: React.FC = () => {
-  const [propsList, setPropsList] = useState<PropositionData[]>([]);
+  const [questions, setQuestions] = useState<ExamQuestionData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const p = await getPropositions('th');
-      setPropsList(p);
+      const items = await getExamQuestions('th');
+      setQuestions(items);
       setLoading(false);
     };
     load();
   }, []);
 
+  const handleClearQuestions = async () => {
+    if (!window.confirm('Remove all exam questions from the bank?')) {
+      return;
+    }
+
+    await deleteAllExamQuestions();
+    setQuestions([]);
+  };
+
   return (
     <div className="auth-page">
       <div className="page-container">
         <div className="page-card">
-          <h2 className="auth-subtitle">Your Propositions</h2>
+          <h2 className="auth-subtitle">Exam Question Bank</h2>
 
           <div className="teacher-actions">
-            <Link to="/teacher/propositions/new" className="btn btn-primary">Add New Proposition</Link>
+            <Link to="/teacher/propositions/new" className="btn btn-primary">Add New Exam Question</Link>
+            <button onClick={handleClearQuestions} className="btn btn-outline">Clear Question Bank</button>
           </div>
 
           {loading && <div>Loading...</div>}
 
           {!loading && (
             <div className="proposition-list">
-              {propsList.map((p, idx) => (
+              {questions.map((q, idx) => (
                 <div key={idx} className="proposition-item">
-                  <h4>{p.questionText}</h4>
-                  <div className="proposition-meta">{p.category} • {p.difficulty}</div>
-                  <div style={{display:'flex', justifyContent:'flex-end'}}>
-                    <button className="btn btn-outline">Edit</button>
-                  </div>
+                  <h4>{q.title || q.questionText}</h4>
+                  <p>{q.questionText}</p>
+                  <div className="proposition-meta">{q.category} • {q.difficulty}</div>
+                  {q.sourceType === 'pdf' && q.pdfUrl && (
+                    <div style={{ marginTop: 8 }}>
+                      <a href={q.pdfUrl} target="_blank" rel="noreferrer">Open PDF: {q.pdfFileName || 'question file'}</a>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

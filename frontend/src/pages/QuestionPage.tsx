@@ -5,12 +5,12 @@ import { AnalysisDisplay } from '../components/AnalysisDisplay';
 import { cleanupAudioUrl } from '../services/storage';
 import { analyzeStudentAnswer, transcribeAudio } from '../services/api';
 import { useLanguage } from '../contexts/LanguageContext';
-import { PropositionData } from '../services/propositionService';
+import { ExamQuestionData } from '../services/examQuestionService';
 
 interface QuestionPageProps {
   question: Question;
   studentId: string;
-  proposition?: PropositionData; // NEW: Optional proposition with criteria
+  proposition?: ExamQuestionData; // NEW: Optional exam question with criteria
   onAnalysisComplete?: (result: AnalysisResult) => void; // NEW: Callback for analysis
 }
 
@@ -126,6 +126,12 @@ export const QuestionPage: React.FC<QuestionPageProps> = ({
               />
             )}
             <p className="question-text">{question.questionText}</p>
+            {proposition?.sourceType === 'pdf' && proposition?.pdfUrl && (
+              <div className="question-context">
+                <strong>PDF Question Source:</strong>
+                <p><a href={proposition.pdfUrl} target="_blank" rel="noreferrer">{proposition.pdfFileName || 'Open PDF'}</a></p>
+              </div>
+            )}
             {question.context && (
               <div className="question-context">
                 <strong>Context:</strong>

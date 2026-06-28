@@ -41,6 +41,15 @@ service cloud.firestore {
       allow update: if isTeacher(); // Teachers can update propositions
       allow delete: if false; // Prevent deletion
     }
+
+    // ============ EXAM QUESTION BANK ============
+    // Authenticated users can read questions; teachers can manage them
+    match /examQuestions/{documentId} {
+      allow read: if isAuthenticated();
+      allow create: if isTeacher();
+      allow update: if isTeacher();
+      allow delete: if isTeacher();
+    }
     
     // ============ ANSWERS COLLECTION ============
     // Subcollection: answers/{userId}/submissions/{submissionId}

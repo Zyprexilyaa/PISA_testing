@@ -205,6 +205,34 @@ export async function saveProposition(propositionData: any): Promise<string> {
 }
 
 /**
+ * Save a question to the exam question bank in Firestore
+ */
+export async function saveExamQuestion(questionData: any): Promise<string> {
+  try {
+    const docRef = await db.collection('examQuestions').add({
+      title: questionData.title || questionData.questionText,
+      questionText: questionData.questionText,
+      difficulty: questionData.difficulty,
+      category: questionData.category,
+      expectedAnswer: questionData.expectedAnswer,
+      scoringRubric: questionData.scoringRubric || {},
+      language: questionData.language || 'th',
+      sourceType: questionData.sourceType || 'text',
+      pdfUrl: questionData.pdfUrl || null,
+      pdfFileName: questionData.pdfFileName || null,
+      createdBy: questionData.createdBy || null,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    console.log(`✅ Exam question saved: ${docRef.id}`);
+    return docRef.id;
+  } catch (error) {
+    console.error('Error saving exam question:', error);
+    throw error;
+  }
+}
+
+/**
  * Get all propositions for a language
  */
 export async function getPropositions(language: string = 'th'): Promise<any[]> {
@@ -219,6 +247,45 @@ export async function getPropositions(language: string = 'th'): Promise<any[]> {
     }));
   } catch (error) {
     console.error('Error getting propositions:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get all exam questions for a language
+ */
+export async function getExamQuestions(language: string = 'th'): Promise<any[]> {
+  try {
+    const snapshot = await db.collection('examQuestions')
+      .where('language', '==', language)
+      .get();
+
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error('Error getting exam questions:', error);
+    throw error;
+  }
+}
+
+/**
+ * Delete all exam questions from the question bank
+ */
+export async function deleteExamQuestions(): Promise<number> {
+  try {
+    const snapshot = await db.collection('examQuestions').get();
+    if (snapshot.empty) {
+      return 0;
+    }
+
+    const batch = db.batch();
+    snapshot.docs.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+    return snapshot.size;
+  } catch (error) {
+    console.error('Error deleting exam questions:', error);
     throw error;
   }
 }

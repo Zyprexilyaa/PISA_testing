@@ -7,7 +7,7 @@ import { AnalyzeAnswerRequest, AnalyzeAnswerResponse } from './types';
 import { analyzeStudentAnswer, generateMockAnalysis } from './analyzeAnswer';
 import { transcribeAudioFile } from './transcribeAudio';
 import { TranscriptionResponse } from './types';
-import { saveProposition, getPropositions, getUserAnswerHistory } from './database';
+import { saveProposition, getPropositions, getUserAnswerHistory, saveExamQuestion, getExamQuestions, deleteExamQuestions } from './database';
 import { joinClassroomByKey } from './database';
 
 const app = express();
@@ -129,6 +129,63 @@ app.post('/saveProposition', async (req: Request, res: Response) => {
       error: errorMessage,
       stack: stack
     });
+  }
+});
+
+/**
+ * Endpoint: POST /saveExamQuestion
+ * Saves a new exam question to the database
+ */
+app.post('/saveExamQuestion', async (req: Request, res: Response) => {
+  try {
+    const questionData = req.body;
+    console.log('📝 saveExamQuestion endpoint called with data:', questionData);
+
+    if (!questionData.questionText || !questionData.difficulty || !questionData.category || !questionData.expectedAnswer) {
+      return res.status(400).json({
+        error: 'Missing required fields: questionText, difficulty, category, expectedAnswer',
+      });
+    }
+
+    const docId = await saveExamQuestion(questionData);
+    res.status(201).json({ id: docId, message: 'Exam question saved successfully', ...questionData });
+  } catch (error) {
+    console.error('❌ Error in saveExamQuestion endpoint:', error);
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+  }
+});
+
+/**
+ * Endpoint: GET /examQuestions
+ * Retrieves all exam questions for a given language
+ */
+app.get('/examQuestions', async (req: Request, res: Response) => {
+  try {
+    const language = (req.query.language as string) || 'th';
+    const questions = await getExamQuestions(language);
+
+    res.status(200).json({
+      language,
+      count: questions.length,
+      questions,
+    });
+  } catch (error) {
+    console.error('❌ Error in getExamQuestions endpoint:', error);
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+  }
+});
+
+/**
+ * Endpoint: DELETE /examQuestions
+ * Clears the entire exam question bank
+ */
+app.delete('/examQuestions', async (_req: Request, res: Response) => {
+  try {
+    const deletedCount = await deleteExamQuestions();
+    res.status(200).json({ deletedCount, message: 'Exam question bank cleared' });
+  } catch (error) {
+    console.error('❌ Error in deleteExamQuestions endpoint:', error);
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 
