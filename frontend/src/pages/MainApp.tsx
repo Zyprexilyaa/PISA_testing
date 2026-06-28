@@ -5,8 +5,7 @@ import { QuestionPage } from './QuestionPage';
 import { Question } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
-import { getRandomProposition, initializeSamplePropositions } from '../services/propositionService';
-import { PropositionData } from '../services/propositionService';
+import { getRandomExamQuestion, ExamQuestionData } from '../services/examQuestionService';
 
 // Sample question for demo (Thai version)
 const sampleQuestion: Question = {
@@ -28,68 +27,48 @@ export const MainApp: React.FC = () => {
   const { '*': subpath } = useParams();
   
   const [studentId] = useState('student-' + Math.random().toString(36).substr(2, 9));
-  const [proposition, setProposition] = useState<PropositionData | null>(null);
+  const [examQuestion, setExamQuestion] = useState<ExamQuestionData | null>(null);
   const [isLoadingProposition, setIsLoadingProposition] = useState(false);
-  const [initialized, setInitialized] = useState(false);
 
-  // Determine current page based on subpath
-  const currentPage = subpath === 'practice' ? 'question' : 'home';
+  // Determine current page based on the active route
+  const currentPage = subpath?.includes('practice') ? 'question' : 'home';
 
-  // NEW: Initialize propositions on first mount
+  // Load a real exam question when the practice route is active
   useEffect(() => {
-    const initializeAndLoadProposition = async () => {
-      if (initialized) return;
-      
+    const loadExamQuestion = async () => {
+      if (currentPage !== 'question') {
+        return;
+      }
+
+      setIsLoadingProposition(true);
       try {
-        console.log('📚 Initializing propositions...');
-        await initializeSamplePropositions();
-        setInitialized(true);
-        
-        // Load random proposition
-        const prop = await getRandomProposition(language);
-        setProposition(prop);
-        console.log('✅ Proposition loaded:', prop);
+        const nextQuestion = await getRandomExamQuestion(language);
+        setExamQuestion(nextQuestion);
       } catch (error) {
-        console.error('Error initializing propositions:', error);
-        setInitialized(true); // Mark as initialized even if there was an error
+        console.error('❌ Error loading exam question:', error);
+        setExamQuestion(null);
+      } finally {
+        setIsLoadingProposition(false);
       }
     };
 
-    initializeAndLoadProposition();
-  }, []); // Run only once on mount
-
-  // NEW: Load proposition when page changes to practice or language changes
-  useEffect(() => {
-    const loadProposition = async () => {
-      if (currentPage === 'question') {
-        console.log('🔄 Starting proposition load...');
-        setIsLoadingProposition(true);
-        try {
-          const prop = await getRandomProposition(language);
-          console.log('✅ Proposition loaded in useEffect:', prop);
-          setProposition(prop);
-        } catch (error) {
-          console.error('❌ Error loading proposition:', error);
-          setProposition(null);
-        } finally {
-          setIsLoadingProposition(false);
-        }
-      }
-    };
-
-    loadProposition();
+    loadExamQuestion();
   }, [currentPage, language]);
 
-  // Map loaded proposition into a Question so UI shows the actual problem
-  const activeQuestion: Question = proposition
+  // Map the loaded exam question into a Question so the UI shows the real problem
+  const activeQuestion: Question = examQuestion
     ? {
-        id: proposition.id || 'prop-' + Math.random().toString(36).slice(2, 10),
-        questionText: proposition.questionText,
-        difficulty: proposition.difficulty,
-        subject: proposition.category,
-        referenceAnswer: proposition.expectedAnswer,
+        id: examQuestion.id || 'exam-q-' + Math.random().toString(36).slice(2, 10),
+        questionText: examQuestion.questionText,
+        difficulty: examQuestion.difficulty,
+        subject: examQuestion.subject || examQuestion.category,
+        referenceAnswer: examQuestion.expectedAnswer,
         scoringGuideline: sampleQuestion.scoringGuideline,
         createdAt: new Date(),
+        questionImage: examQuestion.questionImage,
+        context: examQuestion.sourceType === 'pdf' && examQuestion.pdfFileName
+          ? `PDF source: ${examQuestion.pdfFileName}`
+          : undefined,
       }
     : sampleQuestion;
 
@@ -187,11 +166,11 @@ export const MainApp: React.FC = () => {
                 <div className="loading-spinner"></div>
                 <p>{language === 'th' ? 'กำลังโหลดคำถาม...' : 'Loading question...'}</p>
               </div>
-            ) : proposition ? (
+            ) : examQuestion ? (
               <QuestionPage 
                 question={activeQuestion}
                 studentId={studentId}
-                proposition={proposition}
+                proposition={examQuestion}
               />
             ) : (
               <div className="error-container">
@@ -209,11 +188,11 @@ export const MainApp: React.FC = () => {
                 <div className="loading-spinner"></div>
                 <p>{language === 'th' ? 'กำลังโหลดคำถาม...' : 'Loading question...'}</p>
               </div>
-            ) : proposition ? (
+            ) : examQuestion ? (
               <QuestionPage 
                 question={activeQuestion}
                 studentId={studentId}
-                proposition={proposition}
+                proposition={examQuestion}
               />
             ) : (
               <div className="error-container">

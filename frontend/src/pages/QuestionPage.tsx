@@ -39,6 +39,10 @@ export const QuestionPage: React.FC<QuestionPageProps> = ({
     setError(null);
   };
 
+  const hasAnswerInput = inputMethod === 'voice'
+    ? Boolean(audioBlob)
+    : Boolean(textAnswer.trim());
+
   const handleSubmitAnswer = async () => {
     // Get transcription based on input method
     let finalTranscription = '';
@@ -198,12 +202,7 @@ export const QuestionPage: React.FC<QuestionPageProps> = ({
 
             <button
               onClick={handleSubmitAnswer}
-              disabled={
-                (inputMethod === 'voice' && !audioBlob) ||
-                (inputMethod === 'text' && !textAnswer.trim()) ||
-                isSubmitting ||
-                isAnalyzing
-              }
+              disabled={!hasAnswerInput || isSubmitting || isAnalyzing}
               className="btn btn-success btn-large"
             >
               {isSubmitting || isAnalyzing ? t('processing') : t('submitAnswer')}
