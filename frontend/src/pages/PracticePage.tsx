@@ -52,9 +52,13 @@ export const PracticePage: React.FC = () => {
                 {questions.map((q, idx) => (
                   <div key={idx} className="proposition-item">
                     <h4>{q.questionText.substring(0,120)}{q.questionText.length>120? '...':''}</h4>
-                    <div className="proposition-meta">{q.category} • {q.difficulty}</div>
-                    <div style={{display:'flex', justifyContent:'flex-end'}}>
-                      <button className="btn btn-outline" onClick={() => setSelected(q)}>Practice</button>
+                    <div className="proposition-meta">
+                      {q.category} • {q.difficulty}
+                      {q.questionNumber && ` • Q${q.questionNumber}`}
+                    </div>
+                    <div style={{display:'flex', justifyContent:'flex-end', gap: 8}}>
+                      <Link to={`/practice/question/${q.id || ''}`} className="btn btn-outline">Open</Link>
+                      <button className="btn btn-primary" onClick={() => setSelected(q)}>Practice</button>
                     </div>
                   </div>
                 ))}

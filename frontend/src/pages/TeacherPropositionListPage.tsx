@@ -50,7 +50,7 @@ export const TeacherPropositionListPage: React.FC = () => {
           <div className="teacher-actions">
             <Link to="/teacher/propositions/new" className="btn btn-primary">Add New Exam Question</Link>
             <button onClick={handleClearQuestions} className="btn btn-outline">Clear Question Bank</button>
-            <button onClick={handleResetToPdfBank} className="btn btn-outline">Reset to 3 PDF Questions</button>
+            <button onClick={handleResetToPdfBank} className="btn btn-outline">Reset to PDF Bank Questions</button>
           </div>
 
           {loading && <div>Loading...</div>}

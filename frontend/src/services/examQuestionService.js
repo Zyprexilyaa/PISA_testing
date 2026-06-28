@@ -1,9 +1,70 @@
-import { addDoc, collection, deleteDoc, getDocs, query, serverTimestamp, where } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, serverTimestamp, where } from 'firebase/firestore';
 import { db } from './firebase';
+const PDF_TEXT_INDEX_URL = '/pdf_text2/extracted_questions.json';
+const DEFAULT_PDF_SCORING_RUBRIC = {
+    excellent: { points: 3, description: 'Clear and complete answer to the PDF question with correct reasoning.' },
+    good: { points: 2, description: 'Mostly correct answer with some reasoning.' },
+    fair: { points: 1, description: 'Partial answer or limited reasoning.' },
+};
+function getPdfFileName(sourceFile) {
+    return sourceFile.replace(/\.txt$/i, '.pdf');
+}
+function normalizePrompt(prompt) {
+    return prompt
+        .replace(/\r\n|\r|\n/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+function mapExtractedQuestion(raw) {
+    const pdfFileName = getPdfFileName(raw.sourceFile);
+    const sourceBase = pdfFileName.replace(/\.pdf$/i, '');
+    const id = `${sourceBase}-${raw.questionNumber}`;
+    return {
+        id,
+        title: `${sourceBase} Q${raw.questionNumber}`,
+        questionText: normalizePrompt(raw.prompt),
+        difficulty: 'hard',
+        category: 'problem-solving',
+        expectedAnswer: 'Answer the PISA question using the PDF prompt and supporting rubric.',
+        scoringRubric: DEFAULT_PDF_SCORING_RUBRIC,
+        language: 'th',
+        sourceType: 'pdf',
+        pdfUrl: `/pdfs/${pdfFileName}`,
+        pdfFileName,
+        questionNumber: raw.questionNumber,
+    };
+}
+async function loadExtractedPdfQuestionTemplates(language = 'th') {
+    if (language !== 'th') {
+        return PDF_EXAM_QUESTION_TEMPLATES.filter(item => item.language === language);
+    }
+    try {
+        const response = await fetch(PDF_TEXT_INDEX_URL);
+        if (!response.ok) {
+            throw new Error(`Unable to load extracted PDF questions (${response.status})`);
+        }
+        const rawData = await response.json();
+        const questions = [];
+        for (const sourceFile of Object.keys(rawData)) {
+            const items = rawData[sourceFile] || [];
+            for (const item of items) {
+                questions.push(mapExtractedQuestion(item));
+            }
+        }
+        if (questions.length > 0) {
+            return questions;
+        }
+    }
+    catch (error) {
+        console.warn('Could not load extracted PDF questions:', error);
+    }
+    return PDF_EXAM_QUESTION_TEMPLATES.filter(item => item.language === language);
+}
 export const PDF_EXAM_QUESTION_TEMPLATES = [
     {
+        id: 'pisa-old-test-1',
         title: 'PISA Old Test 1',
-        questionText: 'Open the attached PISA PDF and answer the exam question inside.',
+        questionText: 'Open the attached PISA PDF and answer the exam question inside. PDF1 is currently scanned and requires OCR from the source file.',
         difficulty: 'hard',
         category: 'comprehension',
         expectedAnswer: 'Answer the question described in the attached PDF.',
@@ -18,6 +79,7 @@ export const PDF_EXAM_QUESTION_TEMPLATES = [
         pdfFileName: 'pisa-old-test-1.pdf',
     },
     {
+        id: 'pisa-old-test-2',
         title: 'PISA Old Test 2',
         questionText: 'Open the attached PISA PDF and answer the exam question inside.',
         difficulty: 'hard',
@@ -34,6 +96,7 @@ export const PDF_EXAM_QUESTION_TEMPLATES = [
         pdfFileName: 'pisa-old-test-2.pdf',
     },
     {
+        id: 'pisa-old-test-3',
         title: 'PISA Old Test 3',
         questionText: 'Open the attached PISA PDF and answer the exam question inside.',
         difficulty: 'hard',
@@ -72,14 +135,31 @@ export async function getExamQuestions(language = 'th') {
             ...doc.data(),
         }));
         if (questions.length === 0) {
-            return PDF_EXAM_QUESTION_TEMPLATES.filter(item => item.language === language);
+            return await loadExtractedPdfQuestionTemplates(language);
         }
         return questions;
     }
     catch (error) {
         console.error('Error getting exam questions:', error);
-        return PDF_EXAM_QUESTION_TEMPLATES.filter(item => item.language === language);
+        return await loadExtractedPdfQuestionTemplates(language);
     }
+}
+export async function getExamQuestionById(id, language = 'th') {
+    try {
+        const docRef = doc(db, 'examQuestions', id);
+        const snapshot = await getDoc(docRef);
+        if (snapshot.exists()) {
+            return {
+                id: snapshot.id,
+                ...snapshot.data(),
+            };
+        }
+    }
+    catch (error) {
+        console.error('Error getting exam question by ID:', error);
+    }
+    const templates = await loadExtractedPdfQuestionTemplates(language);
+    return templates.find(item => item.id === id) ?? null;
 }
 export async function getRandomExamQuestion(language = 'th') {
     try {
@@ -111,7 +191,7 @@ export async function importPdfExamQuestions(language = 'th') {
         if (!existing.empty) {
             return existing.docs.map(doc => doc.id);
         }
-        const templates = PDF_EXAM_QUESTION_TEMPLATES.filter(item => item.language === language);
+        const templates = await loadExtractedPdfQuestionTemplates(language);
         const ids = await Promise.all(templates.map(async (template) => {
             const docRef = await addDoc(collection(db, 'examQuestions'), {
                 ...template,
